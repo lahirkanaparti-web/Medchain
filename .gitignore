@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+venv/
+env/
+.venv/
+
+# Python cache & build
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.egg-info/
+
+# Environment variables & secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+
+# Smart contract build artifacts & cache
+contracts/artifacts/
+contracts/cache/
+contracts/typechain-types/
+
+# Frontend build outputs
+frontend/dist/
+frontend/build/
+.vite/
+
+# Machine Learning model weights & binary bundles
+*.onnx
+*.tflite
+*.joblib
+*.pkl
+*.h5
+*.pt
+*.pth
+
+# OS & IDE metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
