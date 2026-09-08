@@ -2,8 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  margin: 0;
-  padding: 0;
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8fafc;
+    color: #0f1e36;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.015em;
+  }
+}
+
+/* Custom Security Document Border Rules */
+.doc-panel {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+}
+
+.doc-header {
+  border-bottom: 1px solid #cbd5e1;
+  background-color: #f8fafc;
+}
+
+.doc-grid {
+  display: grid;
+  gap: 1px;
+  background-color: #cbd5e1;
+}
+
+.doc-grid-cell {
+  background-color: #ffffff;
 }

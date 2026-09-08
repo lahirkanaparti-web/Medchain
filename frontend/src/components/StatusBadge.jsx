@@ -1,11 +1,11 @@
 import React from 'react';
 
 const STATE_CONFIG = {
-  0: { label: 'Manufactured', bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-300' },
-  1: { label: 'In Transit', bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-300' },
-  2: { label: 'At Distributor', bg: 'bg-indigo-100', text: 'text-indigo-800', border: 'border-indigo-300' },
-  3: { label: 'At Pharmacy', bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-300' },
-  4: { label: 'Dispensed', bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-300' },
+  0: { label: 'Manufactured', bg: 'bg-clinical-50', text: 'text-clinical-900', border: 'border-clinical-200' },
+  1: { label: 'In transit', bg: 'bg-amber-50', text: 'text-amber-900', border: 'border-amber-200' },
+  2: { label: 'At distributor', bg: 'bg-blue-50', text: 'text-blue-900', border: 'border-blue-200' },
+  3: { label: 'At pharmacy', bg: 'bg-slate-100', text: 'text-slate-900', border: 'border-slate-300' },
+  4: { label: 'Dispensed', bg: 'bg-genuine-50', text: 'text-genuine-700', border: 'border-genuine-200' },
 };
 
 export default function StatusBadge({ state, stateName }) {
@@ -18,9 +18,9 @@ export default function StatusBadge({ state, stateName }) {
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${config.bg} ${config.text} ${config.border}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border ${config.bg} ${config.text} ${config.border}`}
     >
-      <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5 animate-pulse" />
+      <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5" />
       {config.label}
     </span>
   );
