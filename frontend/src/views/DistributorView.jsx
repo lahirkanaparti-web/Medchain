@@ -7,7 +7,7 @@ import CustodyTimeline from '../components/CustodyTimeline';
 import SkeletonLoader from '../components/SkeletonLoader';
 import EmptyState from '../components/EmptyState';
 
-const DEFAULT_DISTRIBUTOR_ADDR = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8';
+const DEFAULT_DISTRIBUTOR_ADDR = '0xA6C5Ab3CC646b083F6936e696F5722ED2c5Bd9fd';
 
 export default function DistributorView() {
   const [searchId, setSearchId] = useState('');

@@ -7,8 +7,8 @@ import CustodyTimeline from '../components/CustodyTimeline';
 import SkeletonLoader from '../components/SkeletonLoader';
 import EmptyState from '../components/EmptyState';
 
-const DEFAULT_PHARMACY_ADDR = '0x3C44CdD4191fC0294516EEA6774579D64894f28c';
-const DEFAULT_PATIENT_ADDR = '0x90F79bf6EB2c4f870365E785982E1f101E93b906';
+const DEFAULT_PHARMACY_ADDR = '0xA6C5Ab3CC646b083F6936e696F5722ED2c5Bd9fd';
+const DEFAULT_PATIENT_ADDR = '0xA6C5Ab3CC646b083F6936e696F5722ED2c5Bd9fd';
 
 export default function PharmacyView() {
   const [searchId, setSearchId] = useState('');
