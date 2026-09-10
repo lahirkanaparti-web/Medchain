@@ -4,7 +4,7 @@ MedChain is a dual-verification system designed to combat counterfeit pharmaceut
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 1. **ERC721 Smart Contract Registry**: ERC721 token representing batch custody, with role-based access control (AccessControl) for Manufacturers, Distributors, and Pharmacies.
 2. **Sequential Custody Enforcement**: On-chain validation preventing skipping stages (`Manufactured` ➔ `InTransit` ➔ `AtDistributor` ➔ `AtPharmacy` ➔ `Dispensed`).
@@ -16,7 +16,7 @@ MedChain is a dual-verification system designed to combat counterfeit pharmaceut
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```text
 medchain/
@@ -66,7 +66,7 @@ medchain/
 
 ---
 
-## 🚀 Quick Start Guide
+## Quick Start Guide
 
 ### 1. Smart Contract (Hardhat)
 ```bash
