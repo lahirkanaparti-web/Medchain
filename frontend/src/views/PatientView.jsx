@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Camera, RefreshCw } from 'lucide-react';
-import { verifyProduct } from '../api/client';
+import { ShieldCheck, Camera, RefreshCw, AlertOctagon, FileSpreadsheet, FileText } from 'lucide-react';
+import { verifyProduct, exportBatch } from '../api/client';
 import CustodyTimeline from '../components/CustodyTimeline';
 import QRScannerModal from '../components/QRScannerModal';
 import VerdictCard from '../components/VerdictCard';
@@ -43,8 +43,15 @@ export default function PatientView() {
     try {
       const res = await verifyProduct(batchId, liveFile);
       setResult(res);
-      if (res.verdict === 'genuine') {
+
+      const isRecalled = res.custodyHistory?.some((h) => h.state === 5);
+
+      if (isRecalled) {
+        toast.error('CRITICAL WARNING: This batch has been officially RECALLED on-chain!');
+      } else if (res.verdict === 'genuine') {
         toast.success('Product verified authentic!');
+      } else if (res.verdict === 'needs_review') {
+        toast('Verification Inconclusive — Manual review recommended.', { icon: '⚠️' });
       } else {
         toast.error('Warning: Physical packaging features suspect!');
       }
@@ -57,10 +64,23 @@ export default function PatientView() {
     }
   };
 
+  const handleExport = async (format) => {
+    if (!batchId) return;
+    try {
+      await exportBatch(batchId, format);
+      toast.success(`Downloaded batch #${batchId} ${format.toUpperCase()} report.`);
+    } catch (err) {
+      console.error(err);
+      toast.error(`Export failed: ${err.message}`);
+    }
+  };
+
   const handleScanSuccess = (scannedBatchId) => {
     setBatchId(scannedBatchId);
     toast.success(`Scanned batch code: ${scannedBatchId}`);
   };
+
+  const isRecalled = result?.custodyHistory?.some((h) => h.state === 5);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -75,11 +95,28 @@ export default function PatientView() {
               Patient Medicine Authenticator
             </h2>
             <p className="text-xs text-slate-600 mt-0.5 max-w-2xl leading-relaxed">
-              Scan the code on your package and take a photo to check if your medicine is genuine.
+              Scan the code on your package and take a photo to check if your medicine is genuine and verified on-chain.
             </p>
           </div>
         </div>
       </div>
+
+      {/* Prominent Recall Banner for Patient if Recalled */}
+      {isRecalled && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-red-600 border border-red-700 text-white p-5 rounded doc-panel space-y-2 shadow-lg"
+        >
+          <div className="flex items-center space-x-2 font-bold text-sm uppercase tracking-wide">
+            <AlertOctagon className="w-6 h-6 text-white shrink-0" />
+            <span>CRITICAL RECALL ALERT — DO NOT CONSUME</span>
+          </div>
+          <p className="text-xs text-white/95 leading-relaxed font-medium">
+            Healthcare regulatory authorities have issued an official ON-CHAIN RECALL for this medicine batch due to safety or quality defects. Even if your packaging photo appears genuine, this batch is NOT safe to consume.
+          </p>
+        </motion.div>
+      )}
 
       {/* Verification Inspection Form */}
       <form onSubmit={handleVerify} className="bg-white rounded p-5 sm:p-6 border border-slate-300 doc-panel space-y-5">
@@ -126,7 +163,7 @@ export default function PatientView() {
           {loading ? (
             <>
               <RefreshCw className="w-4 h-4 animate-spin" />
-              <span>Verifying product features...</span>
+              <span>Verifying product features against on-chain standards...</span>
             </>
           ) : (
             <>
@@ -146,9 +183,33 @@ export default function PatientView() {
           <div className="space-y-6">
             <VerdictCard result={result} livePreviewUrl={livePreview} />
 
-            {/* Custody Manifest Panel */}
+            {/* Custody Manifest & Export Panel */}
             <div className="bg-white rounded p-5 sm:p-6 border border-slate-300 doc-panel space-y-4">
-              <CustodyTimeline history={result.history || []} currentTxHash={result.txHash} />
+              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                <span className="font-display font-bold text-xs text-clinical-900">
+                  Export Verification Audit Record
+                </span>
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => handleExport('csv')}
+                    className="py-1 px-2.5 bg-slate-100 hover:bg-slate-200 text-clinical-900 font-semibold text-xs rounded border border-slate-300 flex items-center space-x-1"
+                  >
+                    <FileSpreadsheet className="w-3 h-3 text-emerald-700" />
+                    <span>CSV</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleExport('pdf')}
+                    className="py-1 px-2.5 bg-slate-100 hover:bg-slate-200 text-clinical-900 font-semibold text-xs rounded border border-slate-300 flex items-center space-x-1"
+                  >
+                    <FileText className="w-3 h-3 text-red-600" />
+                    <span>PDF</span>
+                  </button>
+                </div>
+              </div>
+
+              <CustodyTimeline history={result.custodyHistory || []} currentTxHash={result.txHash} />
             </div>
           </div>
         )}

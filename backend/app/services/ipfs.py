@@ -62,20 +62,66 @@ def get_ipfs_url(cid: str) -> str:
 
 def fetch_ipfs_file(cid: str) -> bytes:
     """
-    Downloads raw file bytes from an IPFS CID via public gateway URL.
+    Downloads raw file bytes from an IPFS CID using Pinata gateway (with auth) or public IPFS fallbacks.
     Returns None if download fails or CID is mock.
     """
     if not cid or "QmMock" in cid:
         logger.info(f"Skipping HTTP download for mock CID '{cid}'.")
         return None
 
-    url = get_ipfs_url(cid)
+    jwt_token = os.getenv("PINATA_JWT")
+    headers = {}
+    if jwt_token:
+        headers["Authorization"] = f"Bearer {jwt_token}"
+
+    gateways = [
+        f"https://gateway.pinata.cloud/ipfs/{cid}",
+        f"https://ipfs.io/ipfs/{cid}",
+        f"https://cloudflare-ipfs.com/ipfs/{cid}",
+        f"https://dweb.link/ipfs/{cid}",
+    ]
+
+    for gw_url in gateways:
+        try:
+            req_headers = headers if "pinata.cloud" in gw_url else {}
+            logger.info(f"Accessing IPFS for CID '{cid}' via {gw_url}...")
+            res = requests.get(gw_url, headers=req_headers, timeout=12)
+            if res.status_code == 200 and len(res.content) > 0:
+                logger.info(f"Successfully retrieved IPFS file ({len(res.content)} bytes) for CID '{cid}' from {gw_url}")
+                return res.content
+            logger.debug(f"Gateway {gw_url} returned HTTP {res.status_code}")
+        except Exception as e:
+            logger.debug(f"Gateway {gw_url} failed for CID '{cid}': {str(e)}")
+
+    logger.warning(f"All IPFS gateways failed to fetch content for CID '{cid}'.")
+    return None
+
+
+def check_pinata_connection() -> dict:
+    """
+    Checks connection status with Pinata IPFS API.
+    Returns status dict with connected boolean and message.
+    """
+    api_key = os.getenv("PINATA_API_KEY")
+    secret_key = os.getenv("PINATA_SECRET")
+    jwt_token = os.getenv("PINATA_JWT")
+
+    if not (jwt_token or (api_key and secret_key)) or api_key == "mock_pinata_api_key":
+        return {"connected": False, "message": "Using mock Pinata credentials."}
+
+    headers = {}
+    if jwt_token:
+        headers["Authorization"] = f"Bearer {jwt_token}"
+    else:
+        headers["pinata_api_key"] = api_key
+        headers["pinata_secret_api_key"] = secret_key
+
     try:
-        res = requests.get(url, timeout=10)
+        url = f"{PINATA_BASE_URL}/data/testAuthentication"
+        res = requests.get(url, headers=headers, timeout=10)
         if res.status_code == 200:
-            return res.content
-        logger.warning(f"Failed to download IPFS CID '{cid}': HTTP {res.status_code}")
-        return None
+            return {"connected": True, "message": "Pinata IPFS live cloud connected successfully."}
+        return {"connected": False, "message": f"Pinata returned HTTP status {res.status_code}."}
     except Exception as e:
-        logger.warning(f"Error fetching IPFS file for CID '{cid}': {str(e)}")
-        return None
+        return {"connected": False, "message": f"Pinata connection test failed: {str(e)}"}
+

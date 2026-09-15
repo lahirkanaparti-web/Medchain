@@ -1,17 +1,36 @@
 import React, { useState } from 'react';
-import { Home, Factory, Truck, Store, ShieldCheck, Info, X } from 'lucide-react';
+import { Home, Factory, Truck, Store, ShieldCheck, ShieldAlert, Info, X, Wallet, ExternalLink, AlertTriangle } from 'lucide-react';
 import LogoMark from './LogoMark';
+import { useWallet } from '../context/WalletContext';
 
 const NAVIGATION_ITEMS = [
   { id: 'home', label: 'Overview', icon: Home },
   { id: 'manufacturer', label: 'Manufacturer', icon: Factory },
   { id: 'distributor', label: 'Distributor', icon: Truck },
   { id: 'pharmacy', label: 'Pharmacy', icon: Store },
+  { id: 'regulator', label: 'Regulator', icon: ShieldAlert },
   { id: 'patient', label: 'Patient verification', icon: ShieldCheck },
 ];
 
 export default function Header({ currentRole, onRoleChange }) {
   const [showTechModal, setShowTechModal] = useState(false);
+  const [showWalletDropdown, setShowWalletDropdown] = useState(false);
+
+  const {
+    account,
+    networkName,
+    balance,
+    isConnected,
+    isConnecting,
+    isSepolia,
+    connectWallet,
+    disconnectWallet,
+    switchToSepolia,
+  } = useWallet();
+
+  const truncatedAddress = account
+    ? `${account.substring(0, 6)}...${account.substring(account.length - 4)}`
+    : '';
 
   return (
     <>
@@ -63,15 +82,125 @@ export default function Header({ currentRole, onRoleChange }) {
               })}
             </div>
 
-            {/* Technical Specifications Trigger */}
-            <button
-              onClick={() => setShowTechModal(true)}
-              className="hidden lg:flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white px-2.5 py-1.5 rounded border border-slate-700/60 hover:bg-clinical-900 transition-colors"
-              title="View Technical Specifications"
-            >
-              <Info className="w-3.5 h-3.5 text-slate-400" />
-              <span>Technical details</span>
-            </button>
+            {/* Right Side: Wallet Connection & Spec Info */}
+            <div className="flex items-center space-x-3 relative">
+              {/* Web3 Wallet Connect Button */}
+              {isConnected ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowWalletDropdown(!showWalletDropdown)}
+                    className="flex items-center space-x-2 px-3 py-1.5 rounded text-xs font-medium bg-clinical-900 border border-slate-700 hover:border-slate-500 transition-colors text-white"
+                  >
+                    <span className="relative flex h-2 w-2">
+                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isSepolia ? 'bg-emerald-400' : 'bg-amber-400'} opacity-75`}></span>
+                      <span className={`relative inline-flex rounded-full h-2 w-2 ${isSepolia ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                    </span>
+                    <span className="font-mono text-xs">{truncatedAddress}</span>
+                    <span className="text-[10px] px-1.5 py-0.2 bg-slate-800 rounded text-slate-300 border border-slate-700">
+                      {networkName}
+                    </span>
+                  </button>
+
+                  {/* Wallet Dropdown */}
+                  {showWalletDropdown && (
+                    <div className="absolute right-0 mt-2 w-64 bg-white rounded border border-slate-300 shadow-xl p-3 z-50 text-slate-800 space-y-2.5">
+                      <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <span className="text-xs font-bold text-slate-900">Connected Wallet</span>
+                        <button
+                          onClick={() => setShowWalletDropdown(false)}
+                          className="text-slate-400 hover:text-slate-600"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-slate-500">Address:</span>
+                          <a
+                            href={`https://sepolia.etherscan.io/address/${account}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-mono text-clinical-800 hover:underline inline-flex items-center space-x-1"
+                          >
+                            <span>{truncatedAddress}</span>
+                            <ExternalLink className="w-3 h-3 text-slate-400" />
+                          </a>
+                        </div>
+
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-slate-500">Balance:</span>
+                          <span className="font-mono font-semibold text-slate-900">{balance ? `${balance} ETH` : 'Loading...'}</span>
+                        </div>
+
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-slate-500">Network:</span>
+                          <span className={`font-semibold ${isSepolia ? 'text-emerald-700' : 'text-amber-600'}`}>
+                            {networkName}
+                          </span>
+                        </div>
+                      </div>
+
+                      {!isSepolia && (
+                        <div className="p-2 bg-amber-50 border border-amber-200 rounded text-[11px] text-amber-800 space-y-1">
+                          <div className="flex items-center space-x-1 font-semibold">
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                            <span>Wrong Network</span>
+                          </div>
+                          <p>Please switch to Ethereum Sepolia Testnet.</p>
+                          <button
+                            onClick={switchToSepolia}
+                            className="w-full mt-1 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded font-medium text-[11px]"
+                          >
+                            Switch to Sepolia
+                          </button>
+                        </div>
+                      )}
+
+                      <div className="pt-2 border-t border-slate-200 flex justify-between">
+                        <a
+                          href={`https://sepolia.etherscan.io/address/${account}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-clinical-800 hover:underline inline-flex items-center space-x-1"
+                        >
+                          <span>Etherscan</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                        <button
+                          onClick={() => {
+                            disconnectWallet();
+                            setShowWalletDropdown(false);
+                          }}
+                          className="text-[11px] text-red-600 hover:text-red-800 font-semibold"
+                        >
+                          Disconnect
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={connectWallet}
+                  disabled={isConnecting}
+                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-sm disabled:opacity-50"
+                >
+                  <Wallet className="w-3.5 h-3.5" />
+                  <span>{isConnecting ? 'Connecting...' : 'Connect Wallet'}</span>
+                </button>
+              )}
+
+              {/* Technical Specifications Trigger */}
+              <button
+                onClick={() => setShowTechModal(true)}
+                className="hidden lg:flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white px-2.5 py-1.5 rounded border border-slate-700/60 hover:bg-clinical-900 transition-colors"
+                title="View Technical Specifications"
+              >
+                <Info className="w-3.5 h-3.5 text-slate-400" />
+                <span>Technical details</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -98,20 +227,20 @@ export default function Header({ currentRole, onRoleChange }) {
             <div className="space-y-3 text-xs text-slate-700">
               <div className="p-3 bg-slate-50 border border-slate-200 rounded space-y-1">
                 <span className="font-semibold text-slate-900 block">Smart Contract Infrastructure</span>
-                <p>ERC721 standard deployed on Ethereum Sepolia testnet.</p>
+                <p>ERC721 standard deployed on Ethereum Sepolia testnet with Role-Based Access Control (RBAC), on-chain recall mechanism, multiple reference image CIDs, and geolocation custody tracking.</p>
                 <p className="font-mono text-[11px] text-clinical-800">
-                  Contract: 0xE6F12902C5827691c6a98Ea67Ea347c42d7de680
+                  Contract: 0x6Df7A20bb095063aA17b6D65796C4D27Ca21B569
                 </p>
               </div>
 
               <div className="p-3 bg-slate-50 border border-slate-200 rounded space-y-1">
                 <span className="font-semibold text-slate-900 block">Visual AI Authentication Model</span>
-                <p>MobileNetV2 / Siamese TFLite neural network performing 224×224 feature vector extraction and cosine distance scoring against Pinata IPFS reference packaging standards.</p>
+                <p>Siamese TFLite neural network performing 299×299 feature vector extraction, multi-reference image minimum distance scoring, and multi-vector tiered authenticity classification.</p>
               </div>
 
               <div className="p-3 bg-slate-50 border border-slate-200 rounded space-y-1">
                 <span className="font-semibold text-slate-900 block">Decentralized Asset Storage</span>
-                <p>Pinata IPFS Gateway pinning reference packaging photography CIDs.</p>
+                <p>Pinata IPFS Gateway pinning multi-angle reference packaging photography CIDs.</p>
               </div>
             </div>
 

@@ -6,6 +6,7 @@ const STATE_CONFIG = {
   2: { label: 'At distributor', bg: 'bg-blue-50', text: 'text-blue-900', border: 'border-blue-200' },
   3: { label: 'At pharmacy', bg: 'bg-slate-100', text: 'text-slate-900', border: 'border-slate-300' },
   4: { label: 'Dispensed', bg: 'bg-genuine-50', text: 'text-genuine-700', border: 'border-genuine-200' },
+  5: { label: 'Recalled', bg: 'bg-red-100', text: 'text-red-900', border: 'border-red-300' },
 };
 
 export default function StatusBadge({ state, stateName }) {

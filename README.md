@@ -42,8 +42,7 @@ medchain/
 │   │   └── models/
 │   │       └── schemas.py       # Pydantic schemas
 │   ├── test_backend.py
-│   ├── requirements.txt
-│   └── .env.example
+│   └── requirements.txt
 ├── frontend/                # React Vite Tailwind frontend
 │   ├── src/
 │   │   ├── views/

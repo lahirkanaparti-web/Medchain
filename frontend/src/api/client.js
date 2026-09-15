@@ -10,8 +10,8 @@ const api = axios.create({
 });
 
 /**
- * Creates a new pharmaceutical batch.
- * @param {FormData} formData - Contains drugName, batchNumber, mfgDate, expiryDate, and image file
+ * Creates a new pharmaceutical batch accepting 1-3 reference images.
+ * @param {FormData} formData - Contains drugName, batchNumber, mfgDate, expiryDate, and 'images' files
  */
 export const createBatch = async (formData) => {
   const response = await api.post('/batches', formData, {
@@ -23,17 +23,55 @@ export const createBatch = async (formData) => {
 };
 
 /**
- * Transfers batch custody on-chain.
+ * Transfers batch custody on-chain with optional geolocation coordinates.
  * @param {number} batchId 
  * @param {string} toAddress 
  * @param {number} newState 
+ * @param {string} latitude 
+ * @param {string} longitude 
  */
-export const transferCustody = async (batchId, toAddress, newState) => {
+export const transferCustody = async (batchId, toAddress, newState, latitude = "", longitude = "") => {
   const response = await api.post(`/batches/${batchId}/transfer`, {
     toAddress,
     newState: Number(newState),
+    latitude,
+    longitude
   });
   return response.data;
+};
+
+/**
+ * Recalls a batch on-chain (REGULATOR_ROLE).
+ * @param {number} batchId 
+ * @param {string} reason 
+ */
+export const recallBatch = async (batchId, reason) => {
+  const response = await api.post(`/batches/${batchId}/recall`, { reason });
+  return response.data;
+};
+
+/**
+ * Downloads batch export file (CSV or PDF).
+ * @param {number} batchId 
+ * @param {'csv'|'pdf'} format 
+ */
+export const exportBatch = async (batchId, format = 'csv') => {
+  const response = await api.get(`/batches/${batchId}/export`, {
+    params: { format },
+    responseType: 'blob'
+  });
+  
+  const blob = new Blob([response.data], {
+    type: format === 'pdf' ? 'application/pdf' : 'text/csv'
+  });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `medchain_batch_${batchId}_export.${format}`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
 };
 
 /**
@@ -54,7 +92,7 @@ export const getBatchQRUrl = (batchId) => {
 };
 
 /**
- * Verifies live product photo against reference IPFS image using MobileNetV2 CNN endpoint.
+ * Verifies live product photo against reference IPFS images using Siamese embedding model.
  * @param {number} batchId 
  * @param {File} liveImageFile 
  */

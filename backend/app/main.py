@@ -3,6 +3,9 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -18,6 +21,9 @@ logger = logging.getLogger("medchain-backend")
 from app.routes import batches, verify
 from app.services.vision import load_model
 
+# Rate Limiter setup for FastAPI
+limiter = Limiter(key_func=get_remote_address)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -32,6 +38,10 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+# Register slowapi state and rate limit exception handler
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Configure CORS for local React dev server
 origins = [

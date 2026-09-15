@@ -2,7 +2,7 @@ const hre = require("hardhat");
 
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
-  const contractAddress = process.env.CONTRACT_ADDRESS || "0xE6F12902C5827691c6a98Ea67Ea347c42d7de680";
+  const contractAddress = process.env.CONTRACT_ADDRESS || "0x380C35D453AAcc82972eDf223e4832c7a492Abd5";
   
   console.log("Target Contract Address:", contractAddress);
   console.log("Executing role assignments with Admin wallet:", deployer.address);
@@ -12,6 +12,7 @@ async function main() {
   const MANUFACTURER_ROLE = await registry.MANUFACTURER_ROLE();
   const DISTRIBUTOR_ROLE = await registry.DISTRIBUTOR_ROLE();
   const PHARMACY_ROLE = await registry.PHARMACY_ROLE();
+  const REGULATOR_ROLE = await registry.REGULATOR_ROLE();
 
   const targetAddress = deployer.address;
 
@@ -35,6 +36,13 @@ async function main() {
   console.log("Tx Sent: https://sepolia.etherscan.io/tx/" + tx3.hash);
   await tx3.wait();
   console.log("PHARMACY_ROLE Confirmed!");
+
+  // 4. Grant REGULATOR_ROLE
+  console.log("\n4. Granting REGULATOR_ROLE to", targetAddress);
+  const tx4 = await registry.grantRole(REGULATOR_ROLE, targetAddress);
+  console.log("Tx Sent: https://sepolia.etherscan.io/tx/" + tx4.hash);
+  await tx4.wait();
+  console.log("REGULATOR_ROLE Confirmed!");
 }
 
 main().catch((error) => {

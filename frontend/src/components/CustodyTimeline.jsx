@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Clock, ExternalLink, ChevronDown, ChevronUp, User, MapPin } from 'lucide-react';
+import { CheckCircle2, Clock, ExternalLink, ChevronDown, ChevronUp, User, MapPin, AlertOctagon } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 
 const PHYSICAL_STAGES = [
@@ -30,6 +30,8 @@ export default function CustodyTimeline({ history = [], currentTxHash = null }) 
     return map;
   }, [history]);
 
+  const recallEvent = eventMap[5]; // Recalled state
+
   const maxRecordedState = React.useMemo(() => {
     if (!history || history.length === 0) return -1;
     return Math.max(...history.map((h) => h.state));
@@ -50,15 +52,29 @@ export default function CustodyTimeline({ history = [], currentTxHash = null }) 
         <span className="text-xs text-slate-500">Click stage to expand details</span>
       </div>
 
+      {/* Recall Alert Banner inside Timeline if Recalled */}
+      {recallEvent && (
+        <div className="p-3 bg-red-50 border border-red-300 rounded text-xs text-red-900 flex items-center space-x-2">
+          <AlertOctagon className="w-4 h-4 text-red-600 shrink-0" />
+          <div>
+            <span className="font-bold uppercase tracking-wider">Batch Recalled:</span>
+            <span className="ml-1">
+              On {new Date(recallEvent.timestamp * 1000).toLocaleString()}
+            </span>
+          </div>
+        </div>
+      )}
+
       <div className="relative pl-6 space-y-4 before:absolute before:left-3.5 before:top-3.5 before:bottom-3.5 before:w-0.5 before:bg-slate-300">
         {PHYSICAL_STAGES.map((stage, idx) => {
           const event = eventMap[stage.state];
           const isCompleted = event !== undefined;
-          const isCurrent = stage.state === maxRecordedState;
+          const isCurrent = stage.state === maxRecordedState && !recallEvent;
           const isExpanded = !!expandedStates[stage.state];
 
           const dateStr = event ? new Date(event.timestamp * 1000).toLocaleString() : null;
           const sequenceNumber = idx + 1;
+          const hasLocation = event && event.latitude && event.longitude;
 
           return (
             <div key={stage.state} className="relative">
@@ -95,6 +111,14 @@ export default function CustodyTimeline({ history = [], currentTxHash = null }) 
                   <div className="flex items-center space-x-2">
                     <span className="font-semibold text-xs text-clinical-900">{stage.title}</span>
                     <StatusBadge state={stage.state} stateName={stage.title} />
+
+                    {/* Geolocation Pin Indicator */}
+                    {hasLocation && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        <MapPin className="w-2.5 h-2.5 mr-0.5" />
+                        GPS Logged
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-center space-x-2 text-xs">
@@ -117,17 +141,43 @@ export default function CustodyTimeline({ history = [], currentTxHash = null }) 
                   <div className="p-3 bg-slate-50 border-t border-slate-200 text-xs space-y-2">
                     <div className="flex items-center justify-between text-slate-700">
                       <span className="text-slate-500 font-medium">Custodian wallet:</span>
-                      <a
-                        href={`https://sepolia.etherscan.io/address/${event.custodian}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-clinical-800 hover:underline flex items-center font-mono"
-                      >
-                        <User className="w-3 h-3 text-slate-400 mr-1" />
-                        <span>{truncateAddress(event.custodian)}</span>
-                        <ExternalLink className="w-3 h-3 ml-1 text-slate-400" />
-                      </a>
+                      <div className="flex items-center space-x-1.5">
+                        <a
+                          href={`https://sepolia.etherscan.io/address/${event.custodian}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-clinical-800 hover:underline flex items-center font-mono"
+                        >
+                          <User className="w-3 h-3 text-slate-400 mr-1" />
+                          <span>{truncateAddress(event.custodian)}</span>
+                          <ExternalLink className="w-3 h-3 ml-1 text-slate-400" />
+                        </a>
+                      </div>
                     </div>
+
+                    {/* Geolocation Row */}
+                    {hasLocation ? (
+                      <div className="flex items-center justify-between text-slate-700">
+                        <span className="text-slate-500 font-medium flex items-center">
+                          <MapPin className="w-3 h-3 text-emerald-600 mr-1" />
+                          Geolocation Coordinates:
+                        </span>
+                        <a
+                          href={`https://www.google.com/maps?q=${event.latitude},${event.longitude}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-emerald-700 hover:underline flex items-center font-mono text-[11px] font-semibold"
+                        >
+                          <span>{event.latitude}, {event.longitude}</span>
+                          <ExternalLink className="w-3 h-3 ml-1" />
+                        </a>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between text-slate-500 text-[11px]">
+                        <span>Geolocation:</span>
+                        <span className="italic">Not provided (optional)</span>
+                      </div>
+                    )}
 
                     {event.blockNumber && (
                       <div className="flex items-center justify-between text-slate-700">
