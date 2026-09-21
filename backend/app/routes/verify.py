@@ -8,6 +8,7 @@ from app.models.schemas import VerifyResponse, CustodyEventSchema
 from app.services.ipfs import get_ipfs_url, fetch_ipfs_file
 from app.services.blockchain import get_blockchain_service
 from app.services.vision import verify_authenticity_multi
+from app.services.agents import explain_verdict
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/batches", tags=["Verification"])
@@ -26,6 +27,7 @@ async def verify_product(request: Request, batch_id: int, image: UploadFile = Fi
     3. Downloads raw reference image bytes from IPFS via `fetch_ipfs_file`.
     4. Computes live distance against EACH reference image and uses the SMALLEST distance (best match).
     5. Returns 3-way tiered authenticity verdict ('genuine', 'needs_review', 'suspect').
+    6. Calls Groq AI Agent `explain_verdict` to generate plain-language explanation for patients.
     """
     try:
         live_image_bytes = await image.read()
@@ -111,17 +113,31 @@ async def verify_product(request: Request, batch_id: int, image: UploadFile = Fi
 
         forensic_data = v_result.get("forensics", None)
 
+        verdict_str = v_result.get("verdict", "genuine")
+        distance_val = v_result.get("distance", 0.0)
+        confidence_val = v_result.get("confidence", 0.95)
+
+        # Call Agent A1: Verdict Explanation Agent
+        explanation_text = explain_verdict(
+            verdict=verdict_str,
+            distance=distance_val,
+            confidence=confidence_val,
+            custody_history=[h.dict() for h in custody_history]
+        )
+
         return VerifyResponse(
             batchId=batch_id,
             authenticityScore=v_result.get("authenticity_score", 0.90),
-            verdict=v_result.get("verdict", "genuine"),
-            distance=v_result.get("distance", 0.0),
-            confidence=v_result.get("confidence", 0.95),
+            verdict=verdict_str,
+            distance=distance_val,
+            confidence=confidence_val,
             ipfsImageUrl=ipfs_url or "https://via.placeholder.com/300?text=Reference+Image",
             custodyHistory=custody_history,
             mode=mode_str,
+            explanation=explanation_text,
             forensicMetrics=forensic_data
         )
+
     except HTTPException:
         raise
     except Exception as e:

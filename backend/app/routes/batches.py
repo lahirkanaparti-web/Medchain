@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Response, Query
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Response, Query, BackgroundTasks
 from typing import Optional, List
 import time
 import io
@@ -14,13 +14,27 @@ from app.models.schemas import (
     BatchRecallRequest,
     BatchRecallResponse,
     CustodyEventSchema,
+    BatchInfoExtractionResponse,
+    InvestigationBriefResponse,
+    DefectInspectionResponse,
 )
 from app.services.ipfs import upload_to_ipfs, get_ipfs_url
 from app.services.blockchain import get_blockchain_service
 from app.services.qr import generate_qr
+from app.services.agents import (
+    draft_recall_notice,
+    extract_batch_info_from_image,
+    investigate_batch,
+    inspect_for_defects,
+    run_autonomous_regulator,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/batches", tags=["Batches"])
+
+# In-memory storage for drafted recall notices
+_RECALL_NOTICES = {}
+
 
 
 def generate_pdf_report(batch_info: dict, custody_history: list) -> bytes:
@@ -292,24 +306,31 @@ async def transfer_custody(batch_id: int, req: BatchTransferRequest):
 async def recall_batch(batch_id: int, req: BatchRecallRequest):
     """
     Recalls a batch due to safety or quality concerns (REGULATOR_ROLE).
+    Invokes Groq AI Agent `draft_recall_notice` to generate formal recall announcement.
     """
     try:
         bc_service = get_blockchain_service()
+        tx_hash = "0xmockrecalltxhash1234567890abcdef1234567890abcdef1234567890abcdef"
+        batch_info = {"batch_id": batch_id, "drug_name": "Amoxicillin 500mg", "batch_number": f"BATCH-2026-{batch_id:03d}"}
 
-        if not bc_service.is_connected() or not bc_service.contract:
-            return BatchRecallResponse(
-                batchId=batch_id,
-                txHash="0xmockrecalltxhash1234567890abcdef1234567890abcdef1234567890abcdef",
-                reason=req.reason,
-                recalled=True
-            )
+        if bc_service.is_connected() and bc_service.contract:
+            res = bc_service.recall_batch(batch_id, req.reason)
+            tx_hash = res["tx_hash"]
+            try:
+                batch_info = bc_service.get_batch(batch_id)
+            except Exception:
+                pass
 
-        res = bc_service.recall_batch(batch_id, req.reason)
+        # Call Agent A2: Recall Notice Drafting Agent
+        notice_text = draft_recall_notice(batch_info, req.reason)
+        _RECALL_NOTICES[batch_id] = notice_text
+
         return BatchRecallResponse(
             batchId=batch_id,
-            txHash=res["tx_hash"],
-            reason=res["reason"],
-            recalled=True
+            txHash=tx_hash,
+            reason=req.reason,
+            recalled=True,
+            recallNotice=notice_text
         )
     except Exception as e:
         logger.error(f"Error recalling batch {batch_id}: {str(e)}")
@@ -319,7 +340,8 @@ async def recall_batch(batch_id: int, req: BatchRecallRequest):
 @router.get("/{batch_id}", response_model=BatchDetailResponse)
 async def get_batch(batch_id: int):
     """
-    Fetches full batch details, multiple IPFS image hashes, recall status, and custody history with geolocation.
+    Fetches full batch details, multiple IPFS image hashes, recall status, custody history with geolocation,
+    and stored drafted recall notice if recalled.
     """
     try:
         bc_service = get_blockchain_service()
@@ -340,6 +362,7 @@ async def get_batch(batch_id: int):
                 isRecalled=False,
                 recallReason="",
                 recallTimestamp=0,
+                recallNotice=_RECALL_NOTICES.get(batch_id, ""),
                 custodyHistory=[
                     CustodyEventSchema(
                         custodian="0xA6C5Ab3CC646b083F6936e696F5722ED2c5Bd9fd",
@@ -385,11 +408,100 @@ async def get_batch(batch_id: int):
             isRecalled=batch_info.get("is_recalled", False),
             recallReason=batch_info.get("recall_reason", ""),
             recallTimestamp=batch_info.get("recall_timestamp", 0),
+            recallNotice=_RECALL_NOTICES.get(batch_id, ""),
             custodyHistory=history
         )
     except Exception as e:
         logger.error(f"Error fetching batch {batch_id}: {str(e)}")
         raise HTTPException(status_code=404 if "does not exist" in str(e) else 500, detail=str(e))
+
+
+@router.post("/extract-batch-info", response_model=BatchInfoExtractionResponse)
+@router.post("/extract-info", response_model=BatchInfoExtractionResponse)
+async def extract_batch_info(image: UploadFile = File(...)):
+    """
+    Agent A3: Manufacturer Data-Entry Assistant (Vision OCR).
+    Uses Groq Vision (llama-3.2-90b-vision-preview) to extract label fields.
+    """
+    try:
+        content = await image.read()
+        if not content:
+            raise HTTPException(status_code=400, detail="Uploaded label image is empty.")
+        extracted = extract_batch_info_from_image(content)
+        return BatchInfoExtractionResponse(**extracted)
+    except Exception as e:
+        logger.error(f"Error extracting batch info from image: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Image data extraction failed: {str(e)}")
+
+
+@router.post("/{batch_id}/investigate", response_model=InvestigationBriefResponse)
+async def investigate_batch_route(batch_id: int):
+    """
+    Agent A4: Regulator Multi-Step Investigation Agent.
+    Executes tool-calling loop (custody, geolocation anomalies, wallet history)
+    and synthesizes a decision-support brief for human regulators.
+    """
+    try:
+        res = investigate_batch(batch_id)
+        return InvestigationBriefResponse(
+            summary=res.get("summary", ""),
+            risk_level=res.get("risk_level", "medium"),
+            findings=res.get("findings", []),
+            recommended_action=res.get("recommended_action", ""),
+            tool_trace=res.get("tool_trace", [])
+        )
+    except Exception as e:
+        logger.error(f"Error running regulator investigation agent for batch {batch_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Investigation agent failed: {str(e)}")
+
+
+@router.post("/{batch_id}/inspect-defects", response_model=DefectInspectionResponse)
+async def inspect_defects_route(batch_id: int, background_tasks: BackgroundTasks, image: UploadFile = File(...)):
+    """
+    Agent A5: Physical Defect Inspection Agent.
+    Inspects photographs of product/packaging for physical defects (cracks, leaks, crushed items, torn seals).
+    If severity is "major" and AUTONOMOUS_REGULATOR_ENABLED is true, triggers run_autonomous_regulator as a background task.
+    If severity is "major" and AUTONOMOUS_REGULATOR_ENABLED is false, logs a passive alert entry instead.
+    """
+    import os
+    try:
+        content = await image.read()
+        if not content:
+            raise HTTPException(status_code=400, detail="Uploaded photo for defect inspection is empty.")
+        res = inspect_for_defects(content)
+
+        severity = str(res.get("severity", "none")).lower()
+        autonomous_enabled = str(os.getenv("AUTONOMOUS_REGULATOR_ENABLED", "true")).lower() in ("true", "1", "yes")
+
+        if severity == "major":
+            if autonomous_enabled:
+                logger.info(f"Major severity defect flagged for Batch #{batch_id}. Triggering Autonomous Regulator pipeline in background...")
+                background_tasks.add_task(run_autonomous_regulator, batch_id, res)
+            else:
+                logger.info(f"Major severity defect flagged for Batch #{batch_id}. AUTONOMOUS_REGULATOR_ENABLED=false: Logging passive alert.")
+                from app.services.alerts import add_audit_entry
+                add_audit_entry({
+                    "batch_id": batch_id,
+                    "defect_report": res,
+                    "investigation_brief": {"summary": "Autonomous pipeline disabled via kill switch. Passive alert recorded."},
+                    "risk_level": "none",
+                    "action_taken": "passive_alert",
+                    "tx_hash": None,
+                    "recall_notice": None
+                })
+
+        return DefectInspectionResponse(
+            has_defects=res.get("has_defects", False),
+            defects_found=res.get("defects_found", []),
+            severity=res.get("severity", "none"),
+            recommendation=res.get("recommendation", "")
+        )
+    except Exception as e:
+        logger.error(f"Error inspecting defects for batch {batch_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Defect inspection failed: {str(e)}")
+
+
+
 
 
 @router.get("/{batch_id}/export")

@@ -5,6 +5,7 @@ import { getBatch, transferCustody, exportBatch } from '../api/client';
 import StatusBadge from '../components/StatusBadge';
 import CustodyTimeline from '../components/CustodyTimeline';
 import SkeletonLoader from '../components/SkeletonLoader';
+import DefectInspectionCard from '../components/DefectInspectionCard';
 
 const DEFAULT_PHARMACY_ADDR = '0xA6C5Ab3CC646b083F6936e696F5722ED2c5Bd9fd';
 const DEFAULT_PATIENT_ADDR = '0xA6C5Ab3CC646b083F6936e696F5722ED2c5Bd9fd';
@@ -165,14 +166,15 @@ export default function PharmacyView() {
               <div className="bg-red-600 border border-red-700 text-white p-5 rounded doc-panel space-y-2">
                 <div className="flex items-center space-x-2 font-bold text-sm uppercase tracking-wide">
                   <AlertOctagon className="w-5 h-5 shrink-0" />
-                  <span>CRITICAL RECALL WARNING: DO NOT DISPENSE THIS BATCH</span>
+                  <span>CRITICAL RECALL: ISSUED AUTONOMOUSLY BY AI REGULATOR AGENT</span>
                 </div>
                 <p className="text-xs text-white/90 leading-relaxed">
-                  This batch was officially RECALLED on-chain by regulatory authorities. Dispensing to patients is strictly prohibited.
+                  This batch was automatically recalled on-chain by the MedChain Autonomous AI Regulator Agent. Dispensing to patients is strictly prohibited.
                 </p>
                 {batch.recallReason && (
-                  <div className="p-2.5 bg-black/20 rounded border border-white/20 text-xs font-mono">
-                    <span className="font-bold">Reason:</span> {batch.recallReason}
+                  <div className="p-2.5 bg-black/20 rounded border border-white/20 text-xs font-mono space-y-1">
+                    <span className="font-bold block">Autonomous Trigger & Rationale:</span>
+                    <p className="leading-relaxed">{batch.recallReason}</p>
                   </div>
                 )}
               </div>
@@ -220,6 +222,9 @@ export default function PharmacyView() {
                   />
                 </div>
               </div>
+
+              {/* Agent #5: AI Physical Defect Inspection */}
+              <DefectInspectionCard batchId={batch.batchId} />
 
               {/* Custody Actions */}
               <div className="space-y-3 pt-3 border-t border-slate-200">

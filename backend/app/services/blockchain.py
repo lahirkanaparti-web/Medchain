@@ -243,32 +243,35 @@ class BlockchainService:
     def is_connected(self) -> bool:
         return self.w3.is_connected()
 
-    def _send_transaction(self, func_call):
-        """Helper to sign and send a Web3 transaction using deployer account."""
-        if not self.account:
+    def _send_transaction(self, func_call, signer_private_key: str = None):
+        """Helper to sign and send a Web3 transaction using deployer or custom regulator account."""
+        key = signer_private_key or self.private_key
+        if not key:
             raise ValueError("No private key configured for blockchain transaction signing.")
         
-        nonce = self.w3.eth.get_transaction_count(self.account.address, 'pending')
+        signer_account = Account.from_key(key) if signer_private_key else self.account
+
+        nonce = self.w3.eth.get_transaction_count(signer_account.address, 'pending')
         current_gas_price = self.w3.eth.gas_price
         buffered_gas_price = int(current_gas_price * 1.25)
 
         tx_dict = {
-            'from': self.account.address,
+            'from': signer_account.address,
             'nonce': nonce,
             'gasPrice': buffered_gas_price,
             'chainId': self.w3.eth.chain_id,
         }
 
         try:
-            estimated_gas = func_call.estimate_gas({'from': self.account.address})
+            estimated_gas = func_call.estimate_gas({'from': signer_account.address})
             tx_dict['gas'] = int(estimated_gas * 1.3)
         except Exception:
             tx_dict['gas'] = 600000
 
         tx = func_call.build_transaction(tx_dict)
-        signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=self.private_key)
+        signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=key)
         tx_hash = self.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
-        logger.info(f"Transaction submitted: {tx_hash.hex()} (nonce={nonce})")
+        logger.info(f"Transaction submitted by {signer_account.address}: {tx_hash.hex()} (nonce={nonce})")
         receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=180)
         return receipt
 
@@ -342,10 +345,10 @@ class BlockchainService:
             "longitude": longitude
         }
 
-    def recall_batch(self, batch_id: int, reason: str) -> dict:
+    def recall_batch(self, batch_id: int, reason: str, signer_private_key: str = None) -> dict:
         """Calls recallBatch on smart contract (REGULATOR_ROLE)."""
         func = self.contract.functions.recallBatch(batch_id, reason)
-        receipt = self._send_transaction(func)
+        receipt = self._send_transaction(func, signer_private_key=signer_private_key)
         return {
             "batch_id": batch_id,
             "tx_hash": receipt.transactionHash.hex(),

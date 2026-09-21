@@ -108,4 +108,58 @@ export const verifyProduct = async (batchId, liveImageFile) => {
   return response.data;
 };
 
+/**
+ * Agent A3: Manufacturer Vision OCR Autofill from label photograph.
+ * @param {File} imageFile 
+ */
+export const extractBatchInfo = async (imageFile) => {
+  const formData = new FormData();
+  formData.append('image', imageFile);
+
+  const response = await api.post('/extract-batch-info', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+/**
+ * Agent A4: Regulator Multi-Step Investigation Agent.
+ * @param {number} batchId 
+ */
+export const investigateBatch = async (batchId) => {
+  const response = await api.post(`/batches/${batchId}/investigate`);
+  return response.data;
+};
+
+/**
+ * Agent A5: Physical Defect Inspection Agent.
+ * @param {number} batchId 
+ * @param {File} imageFile 
+ */
+export const inspectDefects = async (batchId, imageFile) => {
+  const formData = new FormData();
+  formData.append('image', imageFile);
+
+  const response = await api.post(`/batches/${batchId}/inspect-defects`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+/**
+ * Fetches autonomous regulator audit trail history with optional filters.
+ * @param {Object} params - { risk_level, action_taken, batch_id }
+ */
+export const getRegulatorAuditLog = async (params = {}) => {
+  const response = await api.get('/regulator/audit-log', { params });
+  return response.data;
+};
+
 export default api;
+
+
+

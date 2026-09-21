@@ -1,0 +1,67 @@
+[
+  {
+    "id": "audit_1789996497012",
+    "timestamp": 1789996497,
+    "batch_id": 1,
+    "defect_report": {
+      "has_defects": true,
+      "defects_found": [
+        "Cracked bottle",
+        "Leaking liquid"
+      ],
+      "severity": "major",
+      "recommendation": "Product packaging broken and leaking liquid. Immediate isolation required."
+    },
+    "investigation_brief": {
+      "summary": "Batch #1 (Amoxicillin 500mg) has a minimal custody record consisting of a single 'Manufactured' event with no geolocation data, and is currently flagged as Recalled. No geolocation anomalies were detected, but the absence of transit/custody events limits the scope of the analysis.",
+      "risk_level": "medium",
+      "findings": [
+        "Custody history contains only one event: 'Manufactured' (state 0) at timestamp 1789449912, with empty latitude/longitude fields.",
+        "Geolocation anomaly check returned no anomalies (no transit events to evaluate for impossible speeds).",
+        "The batch is currently in 'Recalled' status, which is a notable regulatory signal warranting review of the recall rationale.",
+        "The custodian wallet (0xA6C5Ab3CC646b083F6936e696F5722ED2c5Bd9fd) is also associated with Batch #2 (Ibuprofen 400mg, currently 'Dispensed'), indicating a multi-product custodian.",
+        "Lack of intermediate custody/handoff events (e.g., distribution, warehousing, dispensing) prevents full chain-of-custody verification for this batch."
+      ],
+      "recommended_action": "Human regulators should review the recall documentation for Batch #1 to confirm the cause and scope of the recall. Additionally, request supplemental custody and geolocation records from the custodian wallet to complete the chain-of-custody audit, and cross-reference the recall reason with Batch #2's dispensing status to assess whether related products are affected.",
+      "tool_trace": [
+        {
+          "tool": "get_custody_history",
+          "args": {
+            "batch_id": 1
+          },
+          "result_summary": "1 events retrieved"
+        },
+        {
+          "tool": "check_geolocation_anomaly",
+          "args": {
+            "custody_events": [
+              {
+                "custodian": "0xA6C5Ab3CC646b083F6936e696F5722ED2c5Bd9fd",
+                "latitude": "",
+                "longitude": "",
+                "state": 0,
+                "state_name": "Manufactured",
+                "timestamp": 1789449912
+              }
+            ]
+          },
+          "result": {
+            "anomaly_detected": false,
+            "anomalies": []
+          }
+        },
+        {
+          "tool": "get_related_batches_by_wallet",
+          "args": {
+            "wallet_address": "0xA6C5Ab3CC646b083F6936e696F5722ED2c5Bd9fd"
+          },
+          "result_summary": "2 batches found"
+        }
+      ]
+    },
+    "risk_level": "medium",
+    "action_taken": "flagged_medium",
+    "tx_hash": null,
+    "recall_notice": null
+  }
+]

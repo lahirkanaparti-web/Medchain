@@ -52,6 +52,7 @@ class BatchRecallResponse(BaseModel):
     txHash: str
     reason: str
     recalled: bool = True
+    recallNotice: Optional[str] = ""
 
 
 class BatchDetailResponse(BaseModel):
@@ -69,6 +70,7 @@ class BatchDetailResponse(BaseModel):
     isRecalled: bool = False
     recallReason: Optional[str] = ""
     recallTimestamp: Optional[int] = 0
+    recallNotice: Optional[str] = ""
     custodyHistory: List[CustodyEventSchema]
 
 
@@ -89,4 +91,42 @@ class VerifyResponse(BaseModel):
     ipfsImageUrl: str
     custodyHistory: List[CustodyEventSchema]
     mode: str
+    explanation: Optional[str] = ""
     forensicMetrics: Optional[ForensicMetricsSchema] = None
+
+
+class BatchInfoExtractionResponse(BaseModel):
+    drug_name: Optional[str] = None
+    batch_number: Optional[str] = None
+    manufacturing_date: Optional[str] = None
+    expiry_date: Optional[str] = None
+
+
+class InvestigationBriefResponse(BaseModel):
+    summary: str
+    risk_level: str  # "low" | "medium" | "high"
+    findings: List[str]
+    recommended_action: str
+    tool_trace: List[dict] = []
+
+
+class DefectInspectionResponse(BaseModel):
+    has_defects: bool
+    defects_found: List[str] = []
+    severity: str  # "none" | "minor" | "major"
+    recommendation: str
+
+
+class AuditLogEntryResponse(BaseModel):
+    id: str
+    timestamp: int
+    batch_id: int
+    defect_report: Optional[dict] = None
+    investigation_brief: Optional[dict] = None
+    risk_level: str
+    action_taken: str
+    tx_hash: Optional[str] = None
+    recall_notice: Optional[str] = None
+
+
+

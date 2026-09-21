@@ -203,6 +203,24 @@ export default function VerdictCard({ result, livePreviewUrl }) {
         </div>
       </div>
 
+      {/* Prominent AI Verdict Explanation Card (Patient-Facing) */}
+      {result.explanation && (
+        <div className="bg-white rounded-xl p-5 sm:p-6 border-2 border-clinical-800/80 shadow-md space-y-2 relative overflow-hidden">
+          <div className="flex items-center space-x-2 text-clinical-900 border-b border-slate-200 pb-2">
+            <span className="p-1.5 bg-clinical-100 text-clinical-900 rounded border border-clinical-300 flex items-center justify-center font-bold text-xs">
+              🤖 Groq AI Explanation
+            </span>
+            <span className="text-xs font-bold text-clinical-900 tracking-tight font-display">
+              Patient Assessment Summary
+            </span>
+          </div>
+          <p className="text-sm font-medium text-slate-800 leading-relaxed pt-1">
+            "{result.explanation}"
+          </p>
+        </div>
+      )}
+
+
       {/* 2. Multi-Vector Forensic Vector Breakdown */}
       <div className="bg-white rounded-xl p-5 sm:p-6 border border-slate-300 doc-panel shadow-sm space-y-4">
         <div className="flex items-center justify-between border-b border-slate-200 pb-3">

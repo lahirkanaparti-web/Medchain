@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Factory, Upload, CheckCircle2, ExternalLink, Download, RefreshCw, ChevronDown, ChevronUp, FileSpreadsheet, FileText } from 'lucide-react';
-import { createBatch, getBatchQRUrl, exportBatch } from '../api/client';
+import { Factory, Upload, CheckCircle2, ExternalLink, Download, RefreshCw, ChevronDown, ChevronUp, FileSpreadsheet, FileText, Sparkles, Bot } from 'lucide-react';
+import { createBatch, getBatchQRUrl, exportBatch, extractBatchInfo } from '../api/client';
 import PinataBadge from '../components/PinataBadge';
 import { useWallet } from '../context/WalletContext';
 
@@ -13,6 +13,15 @@ export default function ManufacturerView() {
     mfgDate: '',
     expiryDate: '',
   });
+
+  const [aiSuggested, setAiSuggested] = useState({
+    drugName: false,
+    batchNumber: false,
+    mfgDate: false,
+    expiryDate: false,
+  });
+
+  const [ocrLoading, setOcrLoading] = useState(false);
 
   // Support 3 reference image uploads: Front, Back, Seal
   const [images, setImages] = useState({
@@ -30,6 +39,61 @@ export default function ManufacturerView() {
   const [loading, setLoading] = useState(false);
   const [createdBatch, setCreatedBatch] = useState(null);
   const [showTechDetails, setShowTechDetails] = useState(false);
+
+  const handleAutofillPhoto = async (file) => {
+    if (!file) return;
+    setOcrLoading(true);
+    toast.loading('Analyzing label photo with Groq Vision AI...', { id: 'ocr' });
+
+    try {
+      const extracted = await extractBatchInfo(file);
+      toast.dismiss('ocr');
+
+      let filledCount = 0;
+      const newForm = { ...formData };
+      const newSuggested = { ...aiSuggested };
+
+      if (extracted.drug_name) {
+        newForm.drugName = extracted.drug_name;
+        newSuggested.drugName = true;
+        filledCount++;
+      }
+      if (extracted.batch_number) {
+        newForm.batchNumber = extracted.batch_number;
+        newSuggested.batchNumber = true;
+        filledCount++;
+      }
+      if (extracted.manufacturing_date) {
+        newForm.mfgDate = extracted.manufacturing_date;
+        newSuggested.mfgDate = true;
+        filledCount++;
+      }
+      if (extracted.expiry_date) {
+        newForm.expiryDate = extracted.expiry_date;
+        newSuggested.expiryDate = true;
+        filledCount++;
+      }
+
+      setFormData(newForm);
+      setAiSuggested(newSuggested);
+
+      // Also set as Front reference image preview
+      setImages((prev) => ({ ...prev, front: file }));
+      setPreviews((prev) => ({ ...prev, front: URL.createObjectURL(file) }));
+
+      if (filledCount > 0) {
+        toast.success(`Groq Vision AI pre-filled ${filledCount} field(s)! Please review before submitting.`);
+      } else {
+        toast('Label scanned, but no clear text fields could be extracted. Please enter manually.', { icon: '⚠️' });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.dismiss('ocr');
+      toast.error('Failed to extract batch info from label photo.');
+    } finally {
+      setOcrLoading(false);
+    }
+  };
 
   const handleImageChange = (type, file) => {
     if (file) {
@@ -89,6 +153,7 @@ export default function ManufacturerView() {
 
   const handleReset = () => {
     setFormData({ drugName: '', batchNumber: '', mfgDate: '', expiryDate: '' });
+    setAiSuggested({ drugName: false, batchNumber: false, mfgDate: false, expiryDate: false });
     setImages({ front: null, back: null, seal: null });
     setPreviews({ front: null, back: null, seal: null });
     setCreatedBatch(null);
@@ -122,61 +187,160 @@ export default function ManufacturerView() {
             <span className="text-xs text-slate-500">Origin record entry</span>
           </div>
 
+          {/* Groq Vision OCR Autofill Box */}
+          <div className="p-4 bg-slate-50 border border-slate-300 rounded-lg space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Sparkles className="w-4 h-4 text-clinical-800" />
+                <span className="text-xs font-bold text-clinical-900 font-display">
+                  Groq Vision AI — Autofill from Packaging Photo
+                </span>
+              </div>
+              <span className="text-[10px] text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
+                Optional Assistant
+              </span>
+            </div>
+            <p className="text-xs text-slate-600">
+              Upload a label photo or Certificate of Analysis to automatically pre-fill form fields below. All fields remain 100% editable for human review.
+            </p>
+            <label className="inline-flex items-center justify-center px-4 py-2 bg-clinical-800 hover:bg-clinical-900 text-white font-semibold text-xs rounded transition-colors cursor-pointer space-x-2">
+              {ocrLoading ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Scanning label with Groq Vision...</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>Autofill from photo</span>
+                </>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                disabled={ocrLoading}
+                onChange={(e) => handleAutofillPhoto(e.target.files[0])}
+                className="hidden"
+              />
+            </label>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="block text-xs font-semibold text-slate-700">
-                Drug name *
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Drug name *
+                </label>
+                {aiSuggested.drugName && (
+                  <span className="text-[10px] font-semibold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 flex items-center">
+                    <Sparkles className="w-2.5 h-2.5 mr-1 text-amber-600" />
+                    AI-suggested — please verify
+                  </span>
+                )}
+              </div>
               <input
                 type="text"
                 required
                 placeholder="e.g. Amoxicillin 500mg"
                 value={formData.drugName}
-                onChange={(e) => setFormData({ ...formData, drugName: e.target.value })}
-                className="w-full px-3 py-2 rounded border border-slate-300 focus:ring-1 focus:ring-clinical-800 focus:border-clinical-800 text-xs outline-none"
+                onChange={(e) => {
+                  setFormData({ ...formData, drugName: e.target.value });
+                  setAiSuggested({ ...aiSuggested, drugName: false });
+                }}
+                className={`w-full px-3 py-2 rounded border text-xs outline-none ${
+                  aiSuggested.drugName
+                    ? 'border-amber-400 bg-amber-50/40 focus:ring-1 focus:ring-amber-500'
+                    : 'border-slate-300 focus:ring-1 focus:ring-clinical-800 focus:border-clinical-800'
+                }`}
               />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-semibold text-slate-700">
-                Batch serial number *
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Batch serial number *
+                </label>
+                {aiSuggested.batchNumber && (
+                  <span className="text-[10px] font-semibold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 flex items-center">
+                    <Sparkles className="w-2.5 h-2.5 mr-1 text-amber-600" />
+                    AI-suggested — please verify
+                  </span>
+                )}
+              </div>
               <input
                 type="text"
                 required
                 placeholder="e.g. BATCH-2026-X99"
                 value={formData.batchNumber}
-                onChange={(e) => setFormData({ ...formData, batchNumber: e.target.value })}
-                className="w-full px-3 py-2 rounded border border-slate-300 focus:ring-1 focus:ring-clinical-800 focus:border-clinical-800 text-xs outline-none"
+                onChange={(e) => {
+                  setFormData({ ...formData, batchNumber: e.target.value });
+                  setAiSuggested({ ...aiSuggested, batchNumber: false });
+                }}
+                className={`w-full px-3 py-2 rounded border text-xs outline-none ${
+                  aiSuggested.batchNumber
+                    ? 'border-amber-400 bg-amber-50/40 focus:ring-1 focus:ring-amber-500'
+                    : 'border-slate-300 focus:ring-1 focus:ring-clinical-800 focus:border-clinical-800'
+                }`}
               />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-semibold text-slate-700">
-                Manufacturing date *
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Manufacturing date *
+                </label>
+                {aiSuggested.mfgDate && (
+                  <span className="text-[10px] font-semibold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 flex items-center">
+                    <Sparkles className="w-2.5 h-2.5 mr-1 text-amber-600" />
+                    AI-suggested — please verify
+                  </span>
+                )}
+              </div>
               <input
                 type="date"
                 required
                 value={formData.mfgDate}
-                onChange={(e) => setFormData({ ...formData, mfgDate: e.target.value })}
-                className="w-full px-3 py-2 rounded border border-slate-300 focus:ring-1 focus:ring-clinical-800 focus:border-clinical-800 text-xs outline-none"
+                onChange={(e) => {
+                  setFormData({ ...formData, mfgDate: e.target.value });
+                  setAiSuggested({ ...aiSuggested, mfgDate: false });
+                }}
+                className={`w-full px-3 py-2 rounded border text-xs outline-none ${
+                  aiSuggested.mfgDate
+                    ? 'border-amber-400 bg-amber-50/40 focus:ring-1 focus:ring-amber-500'
+                    : 'border-slate-300 focus:ring-1 focus:ring-clinical-800 focus:border-clinical-800'
+                }`}
               />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-semibold text-slate-700">
-                Expiry date *
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Expiry date *
+                </label>
+                {aiSuggested.expiryDate && (
+                  <span className="text-[10px] font-semibold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 flex items-center">
+                    <Sparkles className="w-2.5 h-2.5 mr-1 text-amber-600" />
+                    AI-suggested — please verify
+                  </span>
+                )}
+              </div>
               <input
                 type="date"
                 required
                 value={formData.expiryDate}
-                onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
-                className="w-full px-3 py-2 rounded border border-slate-300 focus:ring-1 focus:ring-clinical-800 focus:border-clinical-800 text-xs outline-none"
+                onChange={(e) => {
+                  setFormData({ ...formData, expiryDate: e.target.value });
+                  setAiSuggested({ ...aiSuggested, expiryDate: false });
+                }}
+                className={`w-full px-3 py-2 rounded border text-xs outline-none ${
+                  aiSuggested.expiryDate
+                    ? 'border-amber-400 bg-amber-50/40 focus:ring-1 focus:ring-amber-500'
+                    : 'border-slate-300 focus:ring-1 focus:ring-clinical-800 focus:border-clinical-800'
+                }`}
               />
             </div>
           </div>
+
 
           {/* Multiple Reference Image Upload Grid (1-3 images) */}
           <div className="space-y-2 pt-2 border-t border-slate-200">

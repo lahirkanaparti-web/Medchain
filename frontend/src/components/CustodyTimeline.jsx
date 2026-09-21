@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Clock, ExternalLink, ChevronDown, ChevronUp, User, MapPin, AlertOctagon } from 'lucide-react';
+import { CheckCircle2, Clock, ExternalLink, ChevronDown, ChevronUp, User, MapPin, AlertOctagon, Sparkles } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 
 const PHYSICAL_STAGES = [
@@ -117,6 +117,14 @@ export default function CustodyTimeline({ history = [], currentTxHash = null }) 
                       <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                         <MapPin className="w-2.5 h-2.5 mr-0.5" />
                         GPS Logged
+                      </span>
+                    )}
+
+                    {/* AI Defect Checkpoint Indicator */}
+                    {(stage.state === 2 || stage.state === 3) && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-clinical-50 text-clinical-800 border border-clinical-200">
+                        <Sparkles className="w-2.5 h-2.5 mr-0.5" />
+                        AI Defect Checkpoint
                       </span>
                     )}
                   </div>

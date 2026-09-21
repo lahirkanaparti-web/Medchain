@@ -1,7 +1,7 @@
 import os
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -18,8 +18,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger("medchain-backend")
 
-from app.routes import batches, verify
+from app.routes import batches, verify, regulator
 from app.services.vision import load_model
+from app.services.agents import extract_batch_info_from_image
+from app.models.schemas import BatchInfoExtractionResponse
 
 # Rate Limiter setup for FastAPI
 limiter = Limiter(key_func=get_remote_address)
@@ -62,6 +64,14 @@ app.add_middleware(
 # Include API routes
 app.include_router(batches.router)
 app.include_router(verify.router)
+app.include_router(regulator.router)
+
+
+@app.post("/extract-batch-info", response_model=BatchInfoExtractionResponse)
+async def extract_batch_info_root(image: UploadFile = File(...)):
+    content = await image.read()
+    res = extract_batch_info_from_image(content)
+    return BatchInfoExtractionResponse(**res)
 
 
 @app.get("/")
@@ -72,3 +82,4 @@ async def root():
         "version": "1.0.0",
         "docs_url": "/docs"
     }
+
