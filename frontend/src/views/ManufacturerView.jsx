@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Factory, Upload, CheckCircle2, ExternalLink, Download, RefreshCw, ChevronDown, ChevronUp, FileSpreadsheet, FileText, Sparkles, Bot } from 'lucide-react';
+import { Factory, Upload, CheckCircle2, ExternalLink, Download, RefreshCw, ChevronDown, ChevronUp, FileSpreadsheet, FileText, Sparkles, Camera, ShieldCheck } from 'lucide-react';
 import { createBatch, getBatchQRUrl, exportBatch, extractBatchInfo } from '../api/client';
 import PinataBadge from '../components/PinataBadge';
 import { useWallet } from '../context/WalletContext';
@@ -43,7 +43,7 @@ export default function ManufacturerView() {
   const handleAutofillPhoto = async (file) => {
     if (!file) return;
     setOcrLoading(true);
-    toast.loading('Analyzing label photo with Groq Vision AI...', { id: 'ocr' });
+    toast.loading('Analyzing label photo with AI Assistant...', { id: 'ocr' });
 
     try {
       const extracted = await extractBatchInfo(file);
@@ -77,12 +77,11 @@ export default function ManufacturerView() {
       setFormData(newForm);
       setAiSuggested(newSuggested);
 
-      // Also set as Front reference image preview
       setImages((prev) => ({ ...prev, front: file }));
       setPreviews((prev) => ({ ...prev, front: URL.createObjectURL(file) }));
 
       if (filledCount > 0) {
-        toast.success(`Groq Vision AI pre-filled ${filledCount} field(s)! Please review before submitting.`);
+        toast.success(`AI Assistant pre-filled ${filledCount} field(s)! Please review before submitting.`);
       } else {
         toast('Label scanned, but no clear text fields could be extracted. Please enter manually.', { icon: '⚠️' });
       }
@@ -99,7 +98,7 @@ export default function ManufacturerView() {
     if (file) {
       setImages((prev) => ({ ...prev, [type]: file }));
       setPreviews((prev) => ({ ...prev, [type]: URL.createObjectURL(file) }));
-      toast.success(`${type.toUpperCase()} package photograph attached.`);
+      toast.success(`${type} package photo attached.`);
     }
   };
 
@@ -107,7 +106,7 @@ export default function ManufacturerView() {
     e.preventDefault();
 
     if (!images.front) {
-      toast.error('Please attach at least the Front of Package reference photograph.');
+      toast.error('Please attach at least the front package photo as baseline standard.');
       return;
     }
 
@@ -123,14 +122,13 @@ export default function ManufacturerView() {
       payload.append('mfgDate', mfgTimestamp);
       payload.append('expiryDate', expTimestamp);
 
-      // Append up to 3 image files
       if (images.front) payload.append('images', images.front);
       if (images.back) payload.append('images', images.back);
       if (images.seal) payload.append('images', images.seal);
 
       const result = await createBatch(payload);
       setCreatedBatch(result);
-      toast.success(`Batch #${result.batchId} successfully registered with ${result.ipfsHashes?.length || 1} reference standards on Pinata IPFS!`);
+      toast.success(`Batch #${result.batchId} successfully registered with verifiable origin record!`);
     } catch (err) {
       console.error(err);
       const errMsg = err.response?.data?.detail || 'Failed to register pharmaceutical batch.';
@@ -144,7 +142,7 @@ export default function ManufacturerView() {
     if (!createdBatch) return;
     try {
       await exportBatch(createdBatch.batchId, format);
-      toast.success(`Downloaded batch #${createdBatch.batchId} ${format.toUpperCase()} audit record.`);
+      toast.success(`Downloaded batch #${createdBatch.batchId} ${format.toUpperCase()} record.`);
     } catch (err) {
       console.error(err);
       toast.error(`Export failed: ${err.message}`);
@@ -161,58 +159,52 @@ export default function ManufacturerView() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Clinical Origin Header */}
-      <div className="bg-white rounded p-5 sm:p-6 border border-slate-300 doc-panel flex items-start justify-between">
-        <div className="flex items-start space-x-4">
-          <div className="p-2.5 bg-clinical-50 text-clinical-800 rounded border border-clinical-200 shrink-0 mt-0.5">
-            <Factory className="w-6 h-6" />
-          </div>
-          <div>
-            <h2 className="text-lg font-display font-bold text-clinical-900">
-              Manufacturer Batch Registration
-            </h2>
-            <p className="text-xs text-slate-600 mt-0.5 max-w-2xl leading-relaxed">
-              Create a verifiable digital origin record and attach 1–3 reference packaging standards (Front, Back, Seal close-up) pinned to Pinata IPFS cloud storage for supply chain tracking.
-            </p>
-          </div>
-        </div>
+      {/* Background Context Header — Distinct from task form card */}
+      <div className="bg-slate-100/70 rounded p-5 sm:p-6 border border-slate-300 space-y-1">
+        <h2 className="text-lg font-display font-bold text-pharma-deep">
+          Manufacturer Batch Registration Console
+        </h2>
+        <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
+          Register new pharmaceutical batches and establish the verified baseline packaging standards for supply chain traceability and authenticity verification.
+        </p>
       </div>
 
       {!createdBatch ? (
-        <form onSubmit={handleSubmit} className="bg-white rounded p-5 sm:p-6 border border-slate-300 doc-panel space-y-5">
+        /* Task Form Card */
+        <form onSubmit={handleSubmit} className="bg-white rounded p-5 sm:p-6 border border-slate-300 doc-panel space-y-5 shadow-sm">
           <div className="border-b border-slate-200 pb-3 flex items-center justify-between">
-            <h3 className="font-display font-bold text-sm text-clinical-900">
-              Register new pharmaceutical batch
+            <h3 className="font-display font-bold text-sm text-pharma-deep">
+              New batch registration entry
             </h3>
-            <span className="text-xs text-slate-500">Origin record entry</span>
+            <span className="text-xs text-slate-500 font-mono">Step 1 of 1</span>
           </div>
 
-          {/* Groq Vision OCR Autofill Box */}
-          <div className="p-4 bg-slate-50 border border-slate-300 rounded-lg space-y-2">
+          {/* AI Autofill Helper Box */}
+          <div className="p-4 bg-slate-50 border border-slate-300 rounded space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Sparkles className="w-4 h-4 text-clinical-800" />
-                <span className="text-xs font-bold text-clinical-900 font-display">
-                  Groq Vision AI — Autofill from Packaging Photo
+                <Sparkles className="w-4 h-4 text-seal-emerald" />
+                <span className="text-xs font-bold text-pharma-deep font-display">
+                  Autofill details from label photo
                 </span>
               </div>
-              <span className="text-[10px] text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
+              <span className="text-[10px] text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200 font-mono">
                 Optional Assistant
               </span>
             </div>
             <p className="text-xs text-slate-600">
-              Upload a label photo or Certificate of Analysis to automatically pre-fill form fields below. All fields remain 100% editable for human review.
+              Upload a package label or document photo to automatically pre-fill details below. All fields remain fully editable.
             </p>
-            <label className="inline-flex items-center justify-center px-4 py-2 bg-clinical-800 hover:bg-clinical-900 text-white font-semibold text-xs rounded transition-colors cursor-pointer space-x-2">
+            <label className="inline-flex items-center justify-center px-4 py-2 bg-pharma-deep hover:bg-slate-900 text-white font-semibold text-xs rounded transition-colors cursor-pointer space-x-2">
               {ocrLoading ? (
                 <>
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>Scanning label with Groq Vision...</span>
+                  <span>Reading label photo...</span>
                 </>
               ) : (
                 <>
                   <Upload className="w-3.5 h-3.5" />
-                  <span>Autofill from photo</span>
+                  <span>Scan photo to autofill</span>
                 </>
               )}
               <input
@@ -232,9 +224,9 @@ export default function ManufacturerView() {
                   Drug name *
                 </label>
                 {aiSuggested.drugName && (
-                  <span className="text-[10px] font-semibold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 flex items-center">
+                  <span className="text-[10px] font-semibold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 flex items-center font-mono">
                     <Sparkles className="w-2.5 h-2.5 mr-1 text-amber-600" />
-                    AI-suggested — please verify
+                    AI-suggested
                   </span>
                 )}
               </div>
@@ -250,7 +242,7 @@ export default function ManufacturerView() {
                 className={`w-full px-3 py-2 rounded border text-xs outline-none ${
                   aiSuggested.drugName
                     ? 'border-amber-400 bg-amber-50/40 focus:ring-1 focus:ring-amber-500'
-                    : 'border-slate-300 focus:ring-1 focus:ring-clinical-800 focus:border-clinical-800'
+                    : 'border-slate-300 focus:ring-1 focus:ring-pharma-deep'
                 }`}
               />
             </div>
@@ -261,9 +253,9 @@ export default function ManufacturerView() {
                   Batch serial number *
                 </label>
                 {aiSuggested.batchNumber && (
-                  <span className="text-[10px] font-semibold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 flex items-center">
+                  <span className="text-[10px] font-semibold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 flex items-center font-mono">
                     <Sparkles className="w-2.5 h-2.5 mr-1 text-amber-600" />
-                    AI-suggested — please verify
+                    AI-suggested
                   </span>
                 )}
               </div>
@@ -276,10 +268,10 @@ export default function ManufacturerView() {
                   setFormData({ ...formData, batchNumber: e.target.value });
                   setAiSuggested({ ...aiSuggested, batchNumber: false });
                 }}
-                className={`w-full px-3 py-2 rounded border text-xs outline-none ${
+                className={`w-full px-3 py-2 rounded border text-xs outline-none font-mono ${
                   aiSuggested.batchNumber
                     ? 'border-amber-400 bg-amber-50/40 focus:ring-1 focus:ring-amber-500'
-                    : 'border-slate-300 focus:ring-1 focus:ring-clinical-800 focus:border-clinical-800'
+                    : 'border-slate-300 focus:ring-1 focus:ring-pharma-deep'
                 }`}
               />
             </div>
@@ -290,9 +282,9 @@ export default function ManufacturerView() {
                   Manufacturing date *
                 </label>
                 {aiSuggested.mfgDate && (
-                  <span className="text-[10px] font-semibold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 flex items-center">
+                  <span className="text-[10px] font-semibold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 flex items-center font-mono">
                     <Sparkles className="w-2.5 h-2.5 mr-1 text-amber-600" />
-                    AI-suggested — please verify
+                    AI-suggested
                   </span>
                 )}
               </div>
@@ -307,7 +299,7 @@ export default function ManufacturerView() {
                 className={`w-full px-3 py-2 rounded border text-xs outline-none ${
                   aiSuggested.mfgDate
                     ? 'border-amber-400 bg-amber-50/40 focus:ring-1 focus:ring-amber-500'
-                    : 'border-slate-300 focus:ring-1 focus:ring-clinical-800 focus:border-clinical-800'
+                    : 'border-slate-300 focus:ring-1 focus:ring-pharma-deep'
                 }`}
               />
             </div>
@@ -318,9 +310,9 @@ export default function ManufacturerView() {
                   Expiry date *
                 </label>
                 {aiSuggested.expiryDate && (
-                  <span className="text-[10px] font-semibold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 flex items-center">
+                  <span className="text-[10px] font-semibold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 flex items-center font-mono">
                     <Sparkles className="w-2.5 h-2.5 mr-1 text-amber-600" />
-                    AI-suggested — please verify
+                    AI-suggested
                   </span>
                 )}
               </div>
@@ -335,26 +327,28 @@ export default function ManufacturerView() {
                 className={`w-full px-3 py-2 rounded border text-xs outline-none ${
                   aiSuggested.expiryDate
                     ? 'border-amber-400 bg-amber-50/40 focus:ring-1 focus:ring-amber-500'
-                    : 'border-slate-300 focus:ring-1 focus:ring-clinical-800 focus:border-clinical-800'
+                    : 'border-slate-300 focus:ring-1 focus:ring-pharma-deep'
                 }`}
               />
             </div>
           </div>
 
-
-          {/* Multiple Reference Image Upload Grid (1-3 images) */}
-          <div className="space-y-2 pt-2 border-t border-slate-200">
+          {/* Reference Photograph Upload Area — Aligned Package Stage Concept */}
+          <div className="space-y-2 pt-3 border-t border-slate-200">
             <label className="block text-xs font-semibold text-slate-700">
-              Reference packaging standards (Attach 1 to 3 multi-angle photos to pin to Pinata IPFS) *
+              Reference packaging standards (Attach 1 to 3 baseline photos) *
             </label>
+            <p className="text-[11px] text-slate-500">
+              These reference photos serve as the physical benchmark against which distributor, pharmacy, and patient inspection photos are evaluated.
+            </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {/* Image 1: Front of package */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+              {/* Photo 1: Front */}
               <div className="border border-slate-300 rounded p-3 text-center bg-slate-50 space-y-2">
                 <span className="text-[11px] font-bold text-slate-800 block">1. Front of package *</span>
                 {previews.front ? (
                   <div className="space-y-1">
-                    <img src={previews.front} alt="Front preview" className="h-28 mx-auto object-contain rounded border" />
+                    <img src={previews.front} alt="Front preview" className="h-28 mx-auto object-contain rounded border border-slate-300" />
                     <button
                       type="button"
                       onClick={() => { setImages((p) => ({ ...p, front: null })); setPreviews((p) => ({ ...p, front: null })); }}
@@ -364,20 +358,20 @@ export default function ManufacturerView() {
                     </button>
                   </div>
                 ) : (
-                  <label className="cursor-pointer flex flex-col items-center justify-center space-y-1 py-3 border-2 border-dashed border-slate-300 rounded hover:bg-slate-100">
-                    <Upload className="w-5 h-5 text-clinical-800" />
-                    <span className="text-[11px] font-semibold text-clinical-900">Upload Front</span>
+                  <label className="cursor-pointer flex flex-col items-center justify-center space-y-1.5 py-4 border-2 border-dashed border-slate-300 rounded bg-white hover:border-pharma-deep transition-colors">
+                    <Camera className="w-5 h-5 text-pharma-deep" />
+                    <span className="text-[11px] font-semibold text-pharma-deep">Attach front photo</span>
                     <input type="file" accept="image/*" onChange={(e) => handleImageChange('front', e.target.files[0])} className="hidden" />
                   </label>
                 )}
               </div>
 
-              {/* Image 2: Back of package */}
+              {/* Photo 2: Back */}
               <div className="border border-slate-300 rounded p-3 text-center bg-slate-50 space-y-2">
                 <span className="text-[11px] font-bold text-slate-800 block">2. Back of package (optional)</span>
                 {previews.back ? (
                   <div className="space-y-1">
-                    <img src={previews.back} alt="Back preview" className="h-28 mx-auto object-contain rounded border" />
+                    <img src={previews.back} alt="Back preview" className="h-28 mx-auto object-contain rounded border border-slate-300" />
                     <button
                       type="button"
                       onClick={() => { setImages((p) => ({ ...p, back: null })); setPreviews((p) => ({ ...p, back: null })); }}
@@ -387,20 +381,20 @@ export default function ManufacturerView() {
                     </button>
                   </div>
                 ) : (
-                  <label className="cursor-pointer flex flex-col items-center justify-center space-y-1 py-3 border-2 border-dashed border-slate-300 rounded hover:bg-slate-100">
-                    <Upload className="w-5 h-5 text-slate-400" />
-                    <span className="text-[11px] font-semibold text-slate-700">Upload Back</span>
+                  <label className="cursor-pointer flex flex-col items-center justify-center space-y-1.5 py-4 border-2 border-dashed border-slate-300 rounded bg-white hover:border-pharma-deep transition-colors">
+                    <Camera className="w-5 h-5 text-slate-400" />
+                    <span className="text-[11px] font-semibold text-slate-700">Attach back photo</span>
                     <input type="file" accept="image/*" onChange={(e) => handleImageChange('back', e.target.files[0])} className="hidden" />
                   </label>
                 )}
               </div>
 
-              {/* Image 3: Seal close-up */}
+              {/* Photo 3: Seal */}
               <div className="border border-slate-300 rounded p-3 text-center bg-slate-50 space-y-2">
                 <span className="text-[11px] font-bold text-slate-800 block">3. Seal close-up (optional)</span>
                 {previews.seal ? (
                   <div className="space-y-1">
-                    <img src={previews.seal} alt="Seal preview" className="h-28 mx-auto object-contain rounded border" />
+                    <img src={previews.seal} alt="Seal preview" className="h-28 mx-auto object-contain rounded border border-slate-300" />
                     <button
                       type="button"
                       onClick={() => { setImages((p) => ({ ...p, seal: null })); setPreviews((p) => ({ ...p, seal: null })); }}
@@ -410,9 +404,9 @@ export default function ManufacturerView() {
                     </button>
                   </div>
                 ) : (
-                  <label className="cursor-pointer flex flex-col items-center justify-center space-y-1 py-3 border-2 border-dashed border-slate-300 rounded hover:bg-slate-100">
-                    <Upload className="w-5 h-5 text-slate-400" />
-                    <span className="text-[11px] font-semibold text-slate-700">Upload Seal</span>
+                  <label className="cursor-pointer flex flex-col items-center justify-center space-y-1.5 py-4 border-2 border-dashed border-slate-300 rounded bg-white hover:border-pharma-deep transition-colors">
+                    <Camera className="w-5 h-5 text-slate-400" />
+                    <span className="text-[11px] font-semibold text-slate-700">Attach seal photo</span>
                     <input type="file" accept="image/*" onChange={(e) => handleImageChange('seal', e.target.files[0])} className="hidden" />
                   </label>
                 )}
@@ -420,95 +414,111 @@ export default function ManufacturerView() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2.5 bg-clinical-800 hover:bg-clinical-900 text-white font-bold text-xs rounded transition-colors flex items-center justify-center space-x-2 disabled:opacity-50"
-          >
-            {loading ? (
-              <>
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Registering batch & pinning images to Pinata IPFS...</span>
-              </>
-            ) : (
-              <span>Register batch</span>
-            )}
-          </button>
+          <div className="pt-3 border-t border-slate-200">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-pharma-deep hover:bg-slate-900 text-white font-bold text-xs rounded transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 shadow-sm"
+            >
+              {loading ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Registering batch origin record...</span>
+                </>
+              ) : (
+                <>
+                  <Factory className="w-4 h-4" />
+                  <span>Register batch record</span>
+                </>
+              )}
+            </button>
+          </div>
         </form>
       ) : (
-        /* Confirmation State */
-        <div className="bg-white rounded p-6 border border-slate-300 doc-panel space-y-5">
-          <div className="flex items-center space-x-3 text-genuine-600 border-b border-slate-200 pb-3">
-            <CheckCircle2 className="w-7 h-7" />
+        /* Batch Created Success View */
+        <div className="bg-white rounded p-6 sm:p-8 border border-slate-300 doc-panel space-y-6 shadow-sm">
+          <div className="flex items-center space-x-3 border-b border-slate-200 pb-4">
+            <div className="p-2 bg-emerald-50 text-seal-emerald rounded border border-emerald-200">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
             <div>
-              <h3 className="font-display font-bold text-base text-clinical-900">Batch registered successfully</h3>
-              <p className="text-xs text-slate-500">Digital origin record issued & packaging images pinned to Pinata IPFS</p>
+              <span className="text-xs font-semibold text-seal-emerald uppercase tracking-wider font-display">
+                Batch Successfully Registered
+              </span>
+              <h3 className="text-lg font-display font-bold text-pharma-deep">{createdBatch.drugName}</h3>
+              <span className="text-xs font-mono text-slate-600">Batch #{createdBatch.batchId} ({createdBatch.batchNumber})</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
-            <div className="space-y-3 text-xs">
-              <div className="bg-slate-50 p-3 rounded border border-slate-200">
-                <span className="text-[11px] text-slate-500 font-medium">Batch serial ID:</span>
-                <span className="font-bold text-base text-clinical-900 block">#{createdBatch.batchId}</span>
-              </div>
-
-              <div className="bg-slate-50 p-3 rounded border border-slate-200">
-                <span className="text-[11px] text-slate-500 font-medium">Drug & lot code:</span>
-                <span className="font-semibold text-slate-800 block">{createdBatch.drugName}</span>
-                <span className="text-[11px] text-slate-500 font-mono">{createdBatch.batchNumber}</span>
-              </div>
-
-              {/* Pinata IPFS Gateway Links */}
-              <div className="bg-slate-50 p-3 rounded border border-slate-200 space-y-2">
-                <span className="text-[11px] font-semibold text-slate-700 block">Pinata IPFS Gateway Assets</span>
-                <div className="space-y-1.5">
-                  {(createdBatch.ipfsHashes || [createdBatch.ipfsHash]).map((cid, i) => (
-                    <PinataBadge key={i} cid={cid} label={`Ref #${i + 1}`} />
-                  ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="bg-slate-50 p-4 rounded border border-slate-200 space-y-2 text-xs">
+                <span className="font-semibold text-slate-900 block border-b border-slate-200 pb-1">Batch Record Summary</span>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Batch serial:</span>
+                  <span className="font-mono text-slate-900">#{createdBatch.batchId}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Lot number:</span>
+                  <span className="font-mono text-slate-900">{createdBatch.batchNumber}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Current custodian:</span>
+                  <span className="font-mono text-slate-900 truncate max-w-[160px]">{createdBatch.currentCustodian}</span>
                 </div>
               </div>
 
-              {/* Export Audit Buttons */}
+              {/* QR Barcode Section */}
+              <div className="bg-slate-50 p-4 rounded border border-slate-200 text-center space-y-2">
+                <span className="text-xs font-semibold text-slate-800 block">Verification QR Code</span>
+                <img
+                  src={getBatchQRUrl(createdBatch.batchId)}
+                  alt="Batch QR Code"
+                  className="w-32 h-32 mx-auto border p-1 bg-white rounded"
+                />
+                <p className="text-[11px] text-slate-500">Scan code on physical package for public verification</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
               <div className="bg-slate-50 p-3 rounded border border-slate-200 space-y-2">
-                <span className="text-[11px] font-semibold text-slate-700 block">Export Batch Record</span>
+                <span className="text-[11px] font-semibold text-slate-700 block">Export audit record</span>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => handleExport('csv')}
-                    className="py-1.5 px-2 bg-white hover:bg-slate-100 text-clinical-900 font-semibold text-[11px] rounded border border-slate-300 flex items-center justify-center space-x-1"
+                    className="py-1.5 px-2 bg-white hover:bg-slate-100 text-pharma-deep font-semibold text-[11px] rounded border border-slate-300 flex items-center justify-center space-x-1"
                   >
-                    <FileSpreadsheet className="w-3 h-3 text-emerald-700" />
+                    <FileSpreadsheet className="w-3 h-3 text-seal-emerald" />
                     <span>CSV</span>
                   </button>
                   <button
                     onClick={() => handleExport('pdf')}
-                    className="py-1.5 px-2 bg-white hover:bg-slate-100 text-clinical-900 font-semibold text-[11px] rounded border border-slate-300 flex items-center justify-center space-x-1"
+                    className="py-1.5 px-2 bg-white hover:bg-slate-100 text-pharma-deep font-semibold text-[11px] rounded border border-slate-300 flex items-center justify-center space-x-1"
                   >
-                    <FileText className="w-3 h-3 text-red-600" />
+                    <FileText className="w-3 h-3 text-quarantine-crimson" />
                     <span>PDF</span>
                   </button>
                 </div>
               </div>
 
-              {/* Expandable Technical Details */}
               <div className="bg-slate-50 p-3 rounded border border-slate-200 space-y-2">
                 <button
                   onClick={() => setShowTechDetails(!showTechDetails)}
-                  className="text-xs text-clinical-800 font-semibold hover:text-clinical-900 flex items-center justify-between w-full"
+                  className="text-xs text-pharma-deep font-semibold hover:underline flex items-center justify-between w-full"
                 >
                   <span>Technical details</span>
                   {showTechDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
 
                 {showTechDetails && (
-                  <div className="pt-2 border-t border-slate-200 space-y-1.5 text-[11px]">
+                  <div className="pt-2 border-t border-slate-200 space-y-1.5 text-[11px] font-mono">
                     <div>
-                      <span className="text-slate-500 block">Transaction Hash:</span>
+                      <span className="text-slate-500 block">Transaction hash:</span>
                       <a
                         href={`https://sepolia.etherscan.io/tx/${createdBatch.txHash}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="font-mono text-slate-700 hover:underline flex items-center truncate"
+                        className="text-pharma-deep hover:underline flex items-center truncate"
                       >
                         <span className="truncate">{createdBatch.txHash}</span>
                         <ExternalLink className="w-3 h-3 ml-1 shrink-0" />
@@ -517,33 +527,15 @@ export default function ManufacturerView() {
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Issued QR Barcode */}
-            <div className="flex flex-col items-center justify-center p-5 bg-slate-50 rounded border border-slate-200 text-center space-y-3">
-              <span className="text-xs font-semibold text-slate-700">Issued packaging QR barcode</span>
-              <img
-                src={getBatchQRUrl(createdBatch.batchId)}
-                alt={`Batch #${createdBatch.batchId} QR`}
-                className="w-40 h-40 bg-white p-2 border border-slate-300 rounded shadow-sm"
-              />
-              <a
-                href={getBatchQRUrl(createdBatch.batchId)}
-                download={`medchain_batch_${createdBatch.batchId}_qr.png`}
-                className="px-4 py-2 bg-clinical-800 hover:bg-clinical-900 text-white font-semibold text-xs rounded transition-colors flex items-center space-x-1"
+              <button
+                onClick={handleReset}
+                className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded border border-slate-300"
               >
-                <Download className="w-3.5 h-3.5 mr-1" />
-                <span>Download QR barcode</span>
-              </a>
+                Register another batch
+              </button>
             </div>
           </div>
-
-          <button
-            onClick={handleReset}
-            className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-clinical-900 font-semibold rounded border border-slate-300 text-xs transition-colors"
-          >
-            Register another batch
-          </button>
         </div>
       )}
     </div>

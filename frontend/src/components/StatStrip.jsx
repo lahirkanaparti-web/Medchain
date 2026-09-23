@@ -1,36 +1,36 @@
 import React from 'react';
-import { ShieldCheck, Layers, ArrowRightLeft, CheckCircle2 } from 'lucide-react';
+import { Layers, ArrowRightLeft, CheckCircle2 } from 'lucide-react';
 
 export default function StatStrip() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-soft flex items-center space-x-3.5">
-        <div className="p-3 bg-trust-50 text-trust-500 rounded-xl border border-trust-100 shrink-0">
+      <div className="doc-panel bg-white/80 p-4 border border-slate-300 shadow-sm flex items-center space-x-3.5">
+        <div className="p-3 bg-pharma-cream text-pharma-navy border border-slate-300 shrink-0">
           <Layers className="w-5 h-5" />
         </div>
         <div>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Registered</span>
-          <span className="text-xl font-extrabold text-slate-900">42 Batches</span>
+          <span className="text-xs font-semibold text-slate-500 block">Total registered</span>
+          <span className="text-lg font-extrabold text-pharma-navy font-display">42 batches</span>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-soft flex items-center space-x-3.5">
-        <div className="p-3 bg-amber-50 text-amber-600 rounded-xl border border-amber-100 shrink-0">
+      <div className="doc-panel bg-white/80 p-4 border border-slate-300 shadow-sm flex items-center space-x-3.5">
+        <div className="p-3 bg-amber-50 text-amber-800 border border-amber-300 shrink-0">
           <ArrowRightLeft className="w-5 h-5" />
         </div>
         <div>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Custody Logged</span>
-          <span className="text-xl font-extrabold text-slate-900">128 Transfers</span>
+          <span className="text-xs font-semibold text-slate-500 block">Custody logged</span>
+          <span className="text-lg font-extrabold text-pharma-navy font-display">128 transfers</span>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-soft flex items-center space-x-3.5">
-        <div className="p-3 bg-genuine-50 text-genuine-600 rounded-xl border border-genuine-100 shrink-0">
+      <div className="doc-panel bg-white/80 p-4 border border-slate-300 shadow-sm flex items-center space-x-3.5">
+        <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-300 shrink-0">
           <CheckCircle2 className="w-5 h-5" />
         </div>
         <div>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">AI Verifications</span>
-          <span className="text-xl font-extrabold text-slate-900">99.4% Authenticity</span>
+          <span className="text-xs font-semibold text-slate-500 block">AI verifications</span>
+          <span className="text-lg font-extrabold text-pharma-navy font-display">99.4% authenticity</span>
         </div>
       </div>
     </div>

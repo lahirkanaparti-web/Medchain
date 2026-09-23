@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   CheckCircle2,
   AlertTriangle,
@@ -12,17 +12,16 @@ import {
   Palette,
   Layers,
   Database,
-  Link2,
   Sliders,
-  Maximize2,
-  ExternalLink
+  ExternalLink,
+  Award,
+  Sparkles
 } from 'lucide-react';
 
 export default function VerdictCard({ result, livePreviewUrl }) {
   const [showTechDetails, setShowTechDetails] = useState(false);
   const [activeTab, setActiveTab] = useState('sideBySide'); // 'sideBySide' | 'splitSlider'
   const [sliderPosition, setSliderPosition] = useState(50); // 0 - 100%
-  const [isScanning, setIsScanning] = useState(true);
 
   if (!result) return null;
 
@@ -48,116 +47,100 @@ export default function VerdictCard({ result, livePreviewUrl }) {
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (confidencePercent / 100) * circumference;
 
-  // Visual Theme Configuration
+  // Visual Theme Configuration Grounded in Security Certificate Stamp Motif
   const getVerdictTheme = () => {
     if (isGenuine) {
       return {
-        bgGradient: 'bg-gradient-to-br from-emerald-900 via-slate-900 to-emerald-950',
-        borderColor: 'border-emerald-500/60',
-        glowClass: 'glow-emerald',
-        badgeBg: 'bg-emerald-500/20 border-emerald-400/40 text-emerald-300',
-        iconBg: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40',
-        icon: <CheckCircle2 className="w-10 h-10 stroke-[2.5]" />,
+        bgBorder: 'border-seal-emerald bg-emerald-50/40 text-pharma-deep',
+        stampClass: 'stamp-seal-genuine',
+        badgeBg: 'bg-emerald-100 text-seal-emerald border-emerald-300',
+        iconBg: 'bg-seal-emerald text-white',
+        icon: <Award className="w-8 h-8" />,
         title: 'Authentic Medicine Verified',
-        subTitle: 'Physical packaging and security characteristics match manufacturer on-chain standard.',
-        statusTag: 'GENUINE PRODUCT',
-        strokeColor: '#10b981',
-        laserColor: '#10b981',
+        subTitle: 'Physical packaging and security features match verified manufacturer standards.',
+        statusTag: 'VERIFIED GENUINE',
+        strokeColor: '#134E35',
       };
     }
     if (isNeedsReview) {
       return {
-        bgGradient: 'bg-gradient-to-br from-amber-950 via-slate-900 to-amber-900',
-        borderColor: 'border-amber-500/60',
-        glowClass: 'glow-amber',
-        badgeBg: 'bg-amber-500/20 border-amber-400/40 text-amber-300',
-        iconBg: 'bg-amber-500/20 text-amber-400 border-amber-500/40',
-        icon: <HelpCircle className="w-10 h-10 stroke-[2.5]" />,
-        title: 'Inconclusive — Review Recommended',
-        subTitle: 'Packaging shows minor deviations in lighting or orientation. Pharmacist inspection advised.',
-        statusTag: 'MANUAL REVIEW',
-        strokeColor: '#f59e0b',
-        laserColor: '#f59e0b',
+        bgBorder: 'border-amber-600 bg-amber-50/40 text-pharma-deep',
+        stampClass: 'stamp-seal-review',
+        badgeBg: 'bg-amber-100 text-amber-900 border-amber-300',
+        iconBg: 'bg-amber-600 text-white',
+        icon: <HelpCircle className="w-8 h-8" />,
+        title: 'Inconclusive — Visual Review Recommended',
+        subTitle: 'Packaging shows minor lighting or orientation variance. Pharmacist inspection advised.',
+        statusTag: 'MANUAL REVIEW ADVISED',
+        strokeColor: '#B45309',
       };
     }
     return {
-      bgGradient: 'bg-gradient-to-br from-red-950 via-slate-900 to-rose-950',
-      borderColor: 'border-rose-500/60',
-      glowClass: 'glow-crimson',
-      badgeBg: 'bg-rose-500/20 border-rose-400/40 text-rose-300',
-      iconBg: 'bg-rose-500/20 text-rose-400 border-rose-500/40',
-      icon: <AlertTriangle className="w-10 h-10 stroke-[2.5]" />,
-      title: 'Counterfeit / Packaging Deviation Suspected',
-      subTitle: 'Packaging features deviate significantly from verified manufacturer IPFS standard. Do not consume.',
+      bgBorder: 'border-quarantine-crimson bg-rose-50/40 text-pharma-deep',
+      stampClass: 'stamp-seal-suspect',
+      badgeBg: 'bg-rose-100 text-quarantine-crimson border-rose-300',
+      iconBg: 'bg-quarantine-crimson text-white',
+      icon: <AlertTriangle className="w-8 h-8" />,
+      title: 'Counterfeit / Packaging Deviation Flagged',
+      subTitle: 'Packaging features deviate significantly from verified manufacturer standards. Do not consume.',
       statusTag: 'AUTHENTICITY FAILED',
-      strokeColor: '#ef4444',
-      laserColor: '#ef4444',
+      strokeColor: '#881337',
     };
   };
 
   const theme = getVerdictTheme();
-  const refImgUrl = result.ipfsImageUrl || 'https://via.placeholder.com/400x300?text=IPFS+Reference';
+  const refImgUrl = result.ipfsImageUrl || 'https://via.placeholder.com/400x300?text=Reference+Packaging+Standard';
   const liveImgUrl = livePreviewUrl || result.ipfsImageUrl;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       className="space-y-6"
     >
-      {/* 1. Main Clinical Security Verdict Hero Banner */}
-      <div
-        className={`rounded-xl p-6 sm:p-7 border shadow-xl transition-all overflow-hidden relative ${theme.bgGradient} ${theme.borderColor} ${theme.glowClass} text-white`}
-      >
-        {/* Background circuit subtle watermarking */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
-
+      {/* 1. Official Security Certificate Verdict Card */}
+      <div className={`rounded border-2 p-6 sm:p-7 doc-panel shadow-certificate relative overflow-hidden ${theme.bgBorder}`}>
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
-          {/* Left Verdict Stamp & Badging */}
+          {/* Left Verdict Stamp & Seal Details */}
           <div className="flex items-start sm:items-center space-x-4 sm:space-x-5">
-            <motion.div
-              initial={{ scale: 0, rotate: -25 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ delay: 0.15, type: 'spring', stiffness: 220, damping: 15 }}
-              className={`p-3.5 rounded-xl border shrink-0 ${theme.iconBg} backdrop-blur-sm shadow-inner`}
-            >
+            <div className={`p-3.5 rounded border ${theme.stampClass} shrink-0`}>
               {theme.icon}
-            </motion.div>
+            </div>
 
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2">
-                <span className={`text-[10px] font-mono font-bold tracking-widest px-2.5 py-0.5 rounded-full border ${theme.badgeBg}`}>
+                <span className={`text-[11px] font-mono font-bold tracking-wider px-2.5 py-0.5 rounded border uppercase ${theme.badgeBg}`}>
                   {theme.statusTag}
                 </span>
-                <span className="text-[10px] font-mono text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700">
-                  BATCH #{result.batchId}
+                <span className="text-[11px] font-mono text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-300">
+                  Batch #{result.batchId}
                 </span>
-                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/50 flex items-center">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse" />
-                  SEPOLIA ON-CHAIN
+                <span className="text-[11px] font-mono text-seal-emerald bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 flex items-center">
+                  <span className="w-1.5 h-1.5 rounded-full bg-seal-emerald mr-1.5" />
+                  Sepolia Verified
                 </span>
               </div>
 
-              <h2 className="text-xl sm:text-2xl font-display font-bold tracking-tight text-white drop-shadow-sm">
+              <h2 className="text-xl sm:text-2xl font-display font-bold text-pharma-deep">
                 {theme.title}
               </h2>
-              <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-700 max-w-xl leading-relaxed">
                 {theme.subTitle}
               </p>
             </div>
           </div>
 
-          {/* Right Confidence Score Gauge */}
-          <div className="flex items-center space-x-4 bg-slate-900/80 p-3.5 sm:p-4 rounded-xl border border-slate-700/80 backdrop-blur-md shrink-0 w-full sm:w-auto justify-between sm:justify-start">
+          {/* Right Confidence Score Circle Gauge */}
+          <div className="flex items-center space-x-4 bg-white p-3.5 sm:p-4 rounded border border-slate-300 shrink-0 w-full sm:w-auto justify-between sm:justify-start shadow-sm">
             <div className="relative w-20 h-20 flex items-center justify-center">
               <svg className="w-20 h-20 transform -rotate-90">
                 <circle
                   cx="40"
                   cy="40"
                   r={radius}
-                  stroke="rgba(255, 255, 255, 0.1)"
-                  strokeWidth="7"
+                  stroke="#E2E8F0"
+                  strokeWidth="6"
                   fill="transparent"
                 />
                 <motion.circle
@@ -165,35 +148,35 @@ export default function VerdictCard({ result, livePreviewUrl }) {
                   cy="40"
                   r={radius}
                   stroke={theme.strokeColor}
-                  strokeWidth="7"
+                  strokeWidth="6"
                   strokeDasharray={circumference}
                   initial={{ strokeDashoffset: circumference }}
                   animate={{ strokeDashoffset }}
-                  transition={{ duration: 1.0, ease: 'easeOut', delay: 0.3 }}
+                  transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
                   strokeLinecap="round"
                   fill="transparent"
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span className="text-xl font-bold font-mono tracking-tight text-white">{confidencePercent}%</span>
-                <span className="text-[8px] uppercase tracking-wider font-semibold text-slate-400">
+                <span className="text-lg font-bold font-mono text-pharma-deep">{confidencePercent}%</span>
+                <span className="text-[8px] uppercase tracking-wider font-semibold text-slate-500">
                   Confidence
                 </span>
               </div>
             </div>
 
             <div className="space-y-1 text-left pr-2">
-              <div className="text-[11px] font-semibold text-slate-300">
-                Overall Match Score
+              <div className="text-[11px] font-semibold text-slate-700">
+                Packaging Match
               </div>
-              <div className="text-lg font-bold font-mono text-white">
+              <div className="text-base font-bold font-mono text-pharma-deep">
                 {matchPercent}%
               </div>
-              <div className="w-28 bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-700">
+              <div className="w-28 bg-slate-100 rounded-full h-1.5 overflow-hidden border border-slate-200">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${matchPercent}%` }}
-                  transition={{ duration: 1.0, delay: 0.4 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
                   className="h-full rounded-full"
                   style={{ backgroundColor: theme.strokeColor }}
                 />
@@ -203,176 +186,84 @@ export default function VerdictCard({ result, livePreviewUrl }) {
         </div>
       </div>
 
-      {/* Prominent AI Verdict Explanation Card (Patient-Facing) */}
+      {/* AI Plain-Language Verdict Explanation */}
       {result.explanation && (
-        <div className="bg-white rounded-xl p-5 sm:p-6 border-2 border-clinical-800/80 shadow-md space-y-2 relative overflow-hidden">
-          <div className="flex items-center space-x-2 text-clinical-900 border-b border-slate-200 pb-2">
-            <span className="p-1.5 bg-clinical-100 text-clinical-900 rounded border border-clinical-300 flex items-center justify-center font-bold text-xs">
-              🤖 Groq AI Explanation
-            </span>
-            <span className="text-xs font-bold text-clinical-900 tracking-tight font-display">
-              Patient Assessment Summary
+        <div className="bg-white rounded p-4 sm:p-5 border border-slate-300 doc-panel space-y-2">
+          <div className="flex items-center space-x-2 text-pharma-deep border-b border-slate-200 pb-2">
+            <Sparkles className="w-4 h-4 text-seal-emerald" />
+            <span className="text-xs font-bold text-pharma-deep font-display">
+              AI Verification Summary
             </span>
           </div>
-          <p className="text-sm font-medium text-slate-800 leading-relaxed pt-1">
+          <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-medium">
             "{result.explanation}"
           </p>
         </div>
       )}
 
-
-      {/* 2. Multi-Vector Forensic Vector Breakdown */}
-      <div className="bg-white rounded-xl p-5 sm:p-6 border border-slate-300 doc-panel shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-          <div className="flex items-center space-x-2 text-clinical-900">
-            <Cpu className="w-4 h-4 text-clinical-800" />
-            <h3 className="font-display font-bold text-sm">Multi-Vector AI Forensic Diagnostics</h3>
-          </div>
-          <span className="text-[11px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-            Engine: {result.mode || 'siamese_tflite'}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {/* Metric 1: Deep Neural Feature Similarity */}
-          <div className="p-3.5 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-700 flex items-center">
-                <Layers className="w-3.5 h-3.5 text-clinical-800 mr-1.5" />
-                Neural Embedding
-              </span>
-              <span className="font-mono text-xs font-bold text-clinical-900">
-                {Math.round(forensics.neuralSimilarity * 100)}%
-              </span>
-            </div>
-            <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.round(forensics.neuralSimilarity * 100)}%` }}
-                transition={{ duration: 0.8 }}
-                className="bg-clinical-800 h-full rounded-full"
-              />
-            </div>
-            <span className="text-[10px] text-slate-500 block">
-              L2 Tensor Distance: <span className="font-mono font-medium text-slate-700">{forensics.distanceMetric.toFixed(4)}</span>
-            </span>
-          </div>
-
-          {/* Metric 2: Color Spectrum & Spectral Palette */}
-          <div className="p-3.5 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-700 flex items-center">
-                <Palette className="w-3.5 h-3.5 text-emerald-700 mr-1.5" />
-                Color Spectrum
-              </span>
-              <span className="font-mono text-xs font-bold text-emerald-800">
-                {Math.round(forensics.colorConsistency * 100)}%
-              </span>
-            </div>
-            <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.round(forensics.colorConsistency * 100)}%` }}
-                transition={{ duration: 0.8, delay: 0.1 }}
-                className="bg-emerald-600 h-full rounded-full"
-              />
-            </div>
-            <span className="text-[10px] text-slate-500 block">
-              RGB Histogram Intersection Match
-            </span>
-          </div>
-
-          {/* Metric 3: Structural Contour & Layout Alignment */}
-          <div className="p-3.5 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-700 flex items-center">
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-700 mr-1.5" />
-                Structural Edge Match
-              </span>
-              <span className="font-mono text-xs font-bold text-blue-800">
-                {Math.round(forensics.structuralCoherence * 100)}%
-              </span>
-            </div>
-            <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.round(forensics.structuralCoherence * 100)}%` }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="bg-blue-600 h-full rounded-full"
-              />
-            </div>
-            <span className="text-[10px] text-slate-500 block">
-              Packaging Contour Cross-Correlation
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Interactive Packaging Forensic Studio */}
-      <div className="bg-white rounded-xl p-5 sm:p-6 border border-slate-300 doc-panel shadow-sm space-y-4">
+      {/* 2. Visual Packaging Comparison Studio */}
+      <div className="bg-white rounded p-5 sm:p-6 border border-slate-300 doc-panel space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
-          <div className="flex items-center space-x-2 text-clinical-900">
-            <ImageIcon className="w-4 h-4 text-clinical-800" />
-            <h3 className="font-display font-bold text-sm">Packaging Visual Forensic Comparator</h3>
+          <div className="flex items-center space-x-2 text-pharma-deep">
+            <ImageIcon className="w-4 h-4 text-pharma-deep" />
+            <h3 className="font-display font-bold text-sm">Packaging Visual Inspection Studio</h3>
           </div>
 
-          {/* View mode toggle tabs */}
-          <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+          {/* View mode toggle */}
+          <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded border border-slate-200 text-xs">
             <button
               type="button"
               onClick={() => setActiveTab('sideBySide')}
-              className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+              className={`px-3 py-1 font-semibold rounded transition-colors ${
                 activeTab === 'sideBySide'
-                  ? 'bg-white text-clinical-900 shadow-sm'
+                  ? 'bg-white text-pharma-deep shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Side-by-Side
+              Side-by-side
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('splitSlider')}
-              className={`px-3 py-1 text-xs font-semibold rounded-md transition-all flex items-center space-x-1 ${
+              className={`px-3 py-1 font-semibold rounded transition-colors flex items-center ${
                 activeTab === 'splitSlider'
-                  ? 'bg-white text-clinical-900 shadow-sm'
+                  ? 'bg-white text-pharma-deep shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Sliders className="w-3 h-3 mr-1 text-clinical-800" />
-              <span>Optical Split-Slider</span>
+              <Sliders className="w-3 h-3 mr-1 text-pharma-deep" />
+              <span>Split-slider comparator</span>
             </button>
           </div>
         </div>
 
-        {/* Tab 1: Side by Side Studio */}
+        {/* Tab 1: Side by Side */}
         {activeTab === 'sideBySide' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Reference Baseline */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-slate-700 flex items-center">
-                  <ShieldCheck className="w-3.5 h-3.5 text-genuine-600 mr-1" />
-                  Verified IPFS Reference Standard
+                  <ShieldCheck className="w-3.5 h-3.5 text-seal-emerald mr-1" />
+                  Manufacturer reference photo
                 </span>
                 <a
                   href={refImgUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-clinical-800 text-[11px] font-mono hover:underline flex items-center"
+                  className="text-pharma-deep text-[11px] font-mono hover:underline flex items-center"
                 >
-                  <span>IPFS CID</span>
+                  <span>View IPFS photo</span>
                   <ExternalLink className="w-2.5 h-2.5 ml-1" />
                 </a>
               </div>
-              <div className="relative rounded-lg overflow-hidden border border-slate-300 bg-slate-950 h-56 flex items-center justify-center group shadow-inner">
-                {isScanning && <div className="scanner-laser" />}
+              <div className="relative rounded overflow-hidden border border-slate-300 bg-slate-950 h-56 flex items-center justify-center">
                 <img
                   src={refImgUrl}
-                  alt="Verified Reference"
-                  className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                  alt="Manufacturer Reference"
+                  className="max-h-full max-w-full object-contain"
                 />
-                <div className="absolute top-2 left-2 px-2 py-0.5 bg-slate-900/90 border border-slate-700 rounded text-[10px] text-emerald-400 font-mono flex items-center">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1" />
+                <div className="absolute top-2 left-2 px-2 py-0.5 bg-pharma-deep/90 border border-slate-700 rounded text-[10px] text-emerald-400 font-mono">
                   MANUFACTURER BASELINE
                 </div>
               </div>
@@ -382,19 +273,18 @@ export default function VerdictCard({ result, livePreviewUrl }) {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-slate-700 flex items-center">
-                  <ImageIcon className="w-3.5 h-3.5 text-clinical-800 mr-1" />
-                  Patient Sample Photograph
+                  <ImageIcon className="w-3.5 h-3.5 text-pharma-deep mr-1" />
+                  Captured packaging photo
                 </span>
-                <span className="text-slate-500 text-[11px] font-mono">LIVE UPLOAD</span>
+                <span className="text-slate-500 text-[11px] font-mono">LIVE SAMPLE</span>
               </div>
-              <div className="relative rounded-lg overflow-hidden border border-slate-300 bg-slate-950 h-56 flex items-center justify-center group shadow-inner">
-                {isScanning && <div className="scanner-laser" style={{ animationDelay: '1.2s' }} />}
+              <div className="relative rounded overflow-hidden border border-slate-300 bg-slate-950 h-56 flex items-center justify-center">
                 <img
                   src={liveImgUrl}
-                  alt="Patient Sample"
-                  className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                  alt="Captured Sample"
+                  className="max-h-full max-w-full object-contain"
                 />
-                <div className="absolute top-2 left-2 px-2 py-0.5 bg-slate-900/90 border border-slate-700 rounded text-[10px] text-slate-200 font-mono">
+                <div className="absolute top-2 left-2 px-2 py-0.5 bg-pharma-deep/90 border border-slate-700 rounded text-[10px] text-slate-200 font-mono">
                   INSPECTION SAMPLE
                 </div>
               </div>
@@ -402,49 +292,45 @@ export default function VerdictCard({ result, livePreviewUrl }) {
           </div>
         )}
 
-        {/* Tab 2: Interactive Optical Split-Slider */}
+        {/* Tab 2: Optical Split-Slider */}
         {activeTab === 'splitSlider' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between text-xs text-slate-600">
-              <span>Drag slider to inspect overlay alignment:</span>
-              <span className="font-mono text-clinical-900 font-semibold">{sliderPosition}% Split</span>
+              <span>Drag slider to inspect optical alignment:</span>
+              <span className="font-mono text-pharma-deep font-semibold">{sliderPosition}% Split</span>
             </div>
 
-            <div className="relative rounded-lg overflow-hidden border border-slate-300 bg-slate-950 h-72 flex items-center justify-center select-none shadow-inner">
-              {/* Bottom Image: Live Patient Photo */}
+            <div className="relative rounded overflow-hidden border border-slate-300 bg-slate-950 h-72 flex items-center justify-center select-none">
               <img
                 src={liveImgUrl}
-                alt="Patient Sample"
+                alt="Captured Sample"
                 className="absolute inset-0 w-full h-full object-contain"
               />
 
-              {/* Top Image: Reference Standard clipped by slider */}
               <div
                 className="absolute inset-0 overflow-hidden"
                 style={{ width: `${sliderPosition}%` }}
               >
                 <img
                   src={refImgUrl}
-                  alt="Reference Standard"
+                  alt="Manufacturer Reference"
                   className="absolute inset-0 w-full h-full object-contain max-w-none"
                   style={{ width: '100%', height: '100%' }}
                 />
-                <div className="absolute top-3 left-3 px-2 py-0.5 bg-slate-900/90 border border-slate-700 rounded text-[10px] text-emerald-400 font-mono">
+                <div className="absolute top-3 left-3 px-2 py-0.5 bg-pharma-deep/90 border border-slate-700 rounded text-[10px] text-emerald-400 font-mono">
                   REFERENCE
                 </div>
               </div>
 
-              {/* Right label for live */}
-              <div className="absolute top-3 right-3 px-2 py-0.5 bg-slate-900/90 border border-slate-700 rounded text-[10px] text-slate-300 font-mono">
-                PATIENT SAMPLE
+              <div className="absolute top-3 right-3 px-2 py-0.5 bg-pharma-deep/90 border border-slate-700 rounded text-[10px] text-slate-300 font-mono">
+                LIVE SAMPLE
               </div>
 
-              {/* Split Line Divider */}
               <div
                 className="absolute top-0 bottom-0 w-0.5 bg-white shadow-lg pointer-events-none z-20"
                 style={{ left: `${sliderPosition}%` }}
               >
-                <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-clinical-900 text-white border border-white flex items-center justify-center shadow-md text-[10px] font-bold">
+                <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-pharma-deep text-white border border-white flex items-center justify-center text-[10px] font-bold">
                   ↔
                 </div>
               </div>
@@ -456,50 +342,46 @@ export default function VerdictCard({ result, livePreviewUrl }) {
               max="100"
               value={sliderPosition}
               onChange={(e) => setSliderPosition(Number(e.target.value))}
-              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-clinical-800"
+              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-pharma-deep"
             />
           </div>
         )}
 
-        {/* Cryptographic & Forensic Details Drawer */}
+        {/* Technical Details Expandable Drawer */}
         <div className="border-t border-slate-200 pt-3">
           <button
             type="button"
             onClick={() => setShowTechDetails(!showTechDetails)}
-            className="text-xs text-clinical-800 font-semibold hover:text-clinical-900 flex items-center justify-between w-full"
+            className="text-xs text-pharma-deep font-semibold hover:underline flex items-center justify-between w-full"
           >
             <span className="flex items-center">
-              <Database className="w-3.5 h-3.5 mr-1 text-clinical-700" />
-              Cryptographic Ledger & Neural Inference Metadata
+              <Cpu className="w-3.5 h-3.5 mr-1 text-slate-500" />
+              Technical details & neural metrics
             </span>
             {showTechDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
 
           {showTechDetails && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="mt-3 p-4 bg-slate-900 text-slate-200 rounded-lg border border-slate-700 text-xs font-mono space-y-2 shadow-inner"
-            >
+            <div className="mt-3 p-3 bg-slate-900 text-slate-200 rounded text-xs font-mono space-y-2 border border-slate-800">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
                 <div>
-                  <span className="text-slate-400 block">AI Neural Backbone:</span>
-                  <span className="text-emerald-400">Siamese TFLite 256-D Embedding Vector</span>
+                  <span className="text-slate-400 block">AI Neural Model:</span>
+                  <span className="text-emerald-400">Siamese TFLite Embedding Vector</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block">Decentralized Storage:</span>
-                  <span className="text-blue-400 truncate block">{result.ipfsImageUrl || 'Pinata Dedicated IPFS'}</span>
+                  <span className="text-slate-400 block">Calculated Tensor Distance:</span>
+                  <span className="text-white">{forensics.distanceMetric.toFixed(6)}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block">Calculated Distance:</span>
-                  <span className="text-white">{result.distance !== undefined ? result.distance.toFixed(6) : '0.000000'}</span>
+                  <span className="text-slate-400 block">Neural Embedding Score:</span>
+                  <span className="text-white">{Math.round(forensics.neuralSimilarity * 100)}%</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block">Decision Boundary:</span>
-                  <span className="text-white">Tiered 3-Way Marginal Band (Threshold ~1.0688)</span>
+                  <span className="text-slate-400 block">Color & Structural Alignment:</span>
+                  <span className="text-white">{Math.round(forensics.colorConsistency * 100)}% / {Math.round(forensics.structuralCoherence * 100)}%</span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
       </div>

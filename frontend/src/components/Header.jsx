@@ -8,7 +8,7 @@ const NAVIGATION_ITEMS = [
   { id: 'manufacturer', label: 'Manufacturer', icon: Factory },
   { id: 'distributor', label: 'Distributor', icon: Truck },
   { id: 'pharmacy', label: 'Pharmacy', icon: Store },
-  { id: 'regulator', label: 'Regulator', icon: ShieldAlert },
+  { id: 'regulator', label: 'Regulator audit', icon: ShieldAlert },
   { id: 'patient', label: 'Patient verification', icon: ShieldCheck },
 ];
 
@@ -34,7 +34,7 @@ export default function Header({ currentRole, onRoleChange }) {
 
   return (
     <>
-      <header className="bg-clinical-800 border-b border-clinical-900 text-white sticky top-0 z-40">
+      <header className="bg-pharma-deep border-b border-slate-800 text-white sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo Mark & System Title */}
@@ -42,16 +42,16 @@ export default function Header({ currentRole, onRoleChange }) {
               onClick={() => onRoleChange('home')}
               className="flex items-center space-x-3 cursor-pointer group"
             >
-              <div className="p-1.5 bg-clinical-900 border border-slate-700/60 rounded">
-                <LogoMark className="w-6 h-6" />
+              <div className="p-1.5 bg-slate-900 border border-slate-700/60 rounded">
+                <LogoMark className="w-6 h-6 text-white" />
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <h1 className="font-display font-bold text-base tracking-tight text-white group-hover:text-clinical-100">
+                  <h1 className="font-display font-bold text-base tracking-tight text-white group-hover:text-slate-200">
                     MedChain
                   </h1>
-                  <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-clinical-900 text-slate-300 border border-slate-700">
-                    Ethereum Sepolia
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-700">
+                    Sepolia Ledger
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-400 font-normal">
@@ -60,8 +60,8 @@ export default function Header({ currentRole, onRoleChange }) {
               </div>
             </div>
 
-            {/* Navigation Tabs */}
-            <div className="flex items-center space-x-1 bg-clinical-900/90 p-1 border border-slate-700/60 rounded">
+            {/* Navigation Role Tabs */}
+            <nav aria-label="Role Navigation" className="flex items-center space-x-1 bg-slate-900/90 p-1 border border-slate-700/60 rounded">
               {NAVIGATION_ITEMS.map((item) => {
                 const Icon = item.icon;
                 const isActive = currentRole === item.id;
@@ -69,10 +69,10 @@ export default function Header({ currentRole, onRoleChange }) {
                   <button
                     key={item.id}
                     onClick={() => onRoleChange(item.id)}
-                    className={`flex items-center space-x-2 px-3 py-1.5 rounded text-xs font-semibold transition-colors ${
+                    className={`flex items-center space-x-2 px-3 py-1.5 rounded text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-white ${
                       isActive
-                        ? 'bg-white text-clinical-900 shadow-sm'
-                        : 'text-slate-300 hover:text-white hover:bg-clinical-800'
+                        ? 'bg-white text-pharma-deep shadow-sm'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-800'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -80,7 +80,7 @@ export default function Header({ currentRole, onRoleChange }) {
                   </button>
                 );
               })}
-            </div>
+            </nav>
 
             {/* Right Side: Wallet Connection & Spec Info */}
             <div className="flex items-center space-x-3 relative">
@@ -89,14 +89,14 @@ export default function Header({ currentRole, onRoleChange }) {
                 <div className="relative">
                   <button
                     onClick={() => setShowWalletDropdown(!showWalletDropdown)}
-                    className="flex items-center space-x-2 px-3 py-1.5 rounded text-xs font-medium bg-clinical-900 border border-slate-700 hover:border-slate-500 transition-colors text-white"
+                    className="flex items-center space-x-2 px-3 py-1.5 rounded text-xs font-medium bg-slate-900 border border-slate-700 hover:border-slate-500 transition-colors text-white"
                   >
                     <span className="relative flex h-2 w-2">
                       <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isSepolia ? 'bg-emerald-400' : 'bg-amber-400'} opacity-75`}></span>
                       <span className={`relative inline-flex rounded-full h-2 w-2 ${isSepolia ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
                     </span>
                     <span className="font-mono text-xs">{truncatedAddress}</span>
-                    <span className="text-[10px] px-1.5 py-0.2 bg-slate-800 rounded text-slate-300 border border-slate-700">
+                    <span className="text-[10px] font-mono px-1.5 py-0.2 bg-slate-800 rounded text-slate-300 border border-slate-700">
                       {networkName}
                     </span>
                   </button>
@@ -121,7 +121,7 @@ export default function Header({ currentRole, onRoleChange }) {
                             href={`https://sepolia.etherscan.io/address/${account}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="font-mono text-clinical-800 hover:underline inline-flex items-center space-x-1"
+                            className="font-mono text-pharma-deep hover:underline inline-flex items-center space-x-1"
                           >
                             <span>{truncatedAddress}</span>
                             <ExternalLink className="w-3 h-3 text-slate-400" />
@@ -135,7 +135,7 @@ export default function Header({ currentRole, onRoleChange }) {
 
                         <div className="flex items-center justify-between text-[11px]">
                           <span className="text-slate-500">Network:</span>
-                          <span className={`font-semibold ${isSepolia ? 'text-emerald-700' : 'text-amber-600'}`}>
+                          <span className={`font-semibold ${isSepolia ? 'text-seal-emerald' : 'text-amber-600'}`}>
                             {networkName}
                           </span>
                         </div>
@@ -162,7 +162,7 @@ export default function Header({ currentRole, onRoleChange }) {
                           href={`https://sepolia.etherscan.io/address/${account}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[11px] text-clinical-800 hover:underline inline-flex items-center space-x-1"
+                          className="text-[11px] text-pharma-deep hover:underline inline-flex items-center space-x-1"
                         >
                           <span>Etherscan</span>
                           <ExternalLink className="w-3 h-3" />
@@ -184,7 +184,7 @@ export default function Header({ currentRole, onRoleChange }) {
                 <button
                   onClick={connectWallet}
                   disabled={isConnecting}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-sm disabled:opacity-50"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded text-xs font-semibold bg-seal-emerald hover:bg-emerald-800 text-white transition-colors shadow-sm disabled:opacity-50"
                 >
                   <Wallet className="w-3.5 h-3.5" />
                   <span>{isConnecting ? 'Connecting...' : 'Connect Wallet'}</span>
@@ -194,7 +194,7 @@ export default function Header({ currentRole, onRoleChange }) {
               {/* Technical Specifications Trigger */}
               <button
                 onClick={() => setShowTechModal(true)}
-                className="hidden lg:flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white px-2.5 py-1.5 rounded border border-slate-700/60 hover:bg-clinical-900 transition-colors"
+                className="hidden lg:flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white px-2.5 py-1.5 rounded border border-slate-700/60 hover:bg-slate-900 transition-colors"
                 title="View Technical Specifications"
               >
                 <Info className="w-3.5 h-3.5 text-slate-400" />
@@ -207,12 +207,12 @@ export default function Header({ currentRole, onRoleChange }) {
 
       {/* Technical Specifications Overlay Modal */}
       {showTechModal && (
-        <div className="fixed inset-0 z-50 bg-clinical-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white border border-slate-300 rounded max-w-lg w-full p-6 space-y-4 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div className="flex items-center space-x-2">
-                <Info className="w-5 h-5 text-clinical-800" />
-                <h3 className="font-display font-bold text-base text-clinical-900">
+                <Info className="w-5 h-5 text-pharma-deep" />
+                <h3 className="font-display font-bold text-base text-pharma-deep">
                   System Technical Specifications
                 </h3>
               </div>
@@ -227,27 +227,27 @@ export default function Header({ currentRole, onRoleChange }) {
             <div className="space-y-3 text-xs text-slate-700">
               <div className="p-3 bg-slate-50 border border-slate-200 rounded space-y-1">
                 <span className="font-semibold text-slate-900 block">Smart Contract Infrastructure</span>
-                <p>ERC721 standard deployed on Ethereum Sepolia testnet with Role-Based Access Control (RBAC), on-chain recall mechanism, multiple reference image CIDs, and geolocation custody tracking.</p>
-                <p className="font-mono text-[11px] text-clinical-800">
+                <p>Ethereum Sepolia Smart Contract with Role-Based Access Control (RBAC), on-chain recall mechanism, reference image hashes, and geolocation custody tracking.</p>
+                <p className="font-mono text-[11px] text-pharma-deep">
                   Contract: 0x6Df7A20bb095063aA17b6D65796C4D27Ca21B569
                 </p>
               </div>
 
               <div className="p-3 bg-slate-50 border border-slate-200 rounded space-y-1">
                 <span className="font-semibold text-slate-900 block">Visual AI Authentication Model</span>
-                <p>Siamese TFLite neural network performing 299×299 feature vector extraction, multi-reference image minimum distance scoring, and multi-vector tiered authenticity classification.</p>
+                <p>Siamese TFLite neural network performing feature vector extraction, reference image distance scoring, and multi-vector tiered authenticity classification.</p>
               </div>
 
               <div className="p-3 bg-slate-50 border border-slate-200 rounded space-y-1">
-                <span className="font-semibold text-slate-900 block">Decentralized Asset Storage</span>
-                <p>Pinata IPFS Gateway pinning multi-angle reference packaging photography CIDs.</p>
+                <span className="font-semibold text-slate-900 block">Decentralized Storage & Vision AI</span>
+                <p>Pinata IPFS Gateway pinning reference packaging photography; Groq Vision & Tool-calling autonomous regulatory agents.</p>
               </div>
             </div>
 
             <div className="pt-2 text-right">
               <button
                 onClick={() => setShowTechModal(false)}
-                className="px-4 py-1.5 bg-clinical-800 text-white rounded text-xs font-semibold hover:bg-clinical-900"
+                className="px-4 py-1.5 bg-pharma-deep text-white rounded text-xs font-semibold hover:bg-slate-900"
               >
                 Close
               </button>

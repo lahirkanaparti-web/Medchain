@@ -1,5 +1,5 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
-import { Camera, RefreshCw, CheckCircle2, AlertCircle, Upload, X } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Camera, RefreshCw, CheckCircle2, AlertCircle, Upload, X, Shield } from 'lucide-react';
 
 export default function CameraCapture({ onPhotoCaptured, currentPreview }) {
   const [isStreaming, setIsStreaming] = useState(false);
@@ -29,7 +29,7 @@ export default function CameraCapture({ onPhotoCaptured, currentPreview }) {
     setErrorMsg(null);
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('In-browser live camera stream is not supported by your device or browser.');
+        throw new Error('In-browser camera stream unavailable on this device or browser.');
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -45,7 +45,7 @@ export default function CameraCapture({ onPhotoCaptured, currentPreview }) {
       setIsStreaming(true);
     } catch (err) {
       console.warn('Camera access error:', err);
-      setErrorMsg(err.message || 'Camera permission denied or device unavailable.');
+      setErrorMsg(err.message || 'Camera permission denied or device camera unavailable.');
       setIsStreaming(false);
     }
   };
@@ -96,7 +96,7 @@ export default function CameraCapture({ onPhotoCaptured, currentPreview }) {
   return (
     <div className="space-y-3">
       <label className="block text-xs font-semibold text-slate-700">
-        Packaging photograph (Required for physical verification)
+        Packaging photo (Required for physical verification)
       </label>
 
       {/* Captured Image Preview State */}
@@ -108,12 +108,12 @@ export default function CameraCapture({ onPhotoCaptured, currentPreview }) {
               alt="Captured medicine packaging"
               className="max-h-full max-w-full object-contain"
             />
-            <div className="absolute top-2 left-2 bg-clinical-900/90 text-white text-[11px] px-2 py-0.5 rounded font-medium flex items-center">
+            <div className="absolute top-2 left-2 bg-pharma-deep/90 text-white text-[11px] px-2 py-0.5 rounded font-medium flex items-center border border-slate-700">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mr-1" /> Photo attached
             </div>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-600">Sample photograph ready for inspection</span>
+            <span className="text-slate-600 font-mono text-[11px]">Packaging photo ready for inspection</span>
             <button
               type="button"
               onClick={handleRetake}
@@ -126,7 +126,7 @@ export default function CameraCapture({ onPhotoCaptured, currentPreview }) {
         </div>
       ) : isStreaming ? (
         /* Live Camera Video Feed & Capture Target Overlay */
-        <div className="bg-clinical-900 border border-slate-700 rounded p-3 space-y-3 text-white">
+        <div className="bg-pharma-deep border border-slate-800 rounded p-3 space-y-3 text-white">
           <div className="relative rounded overflow-hidden bg-black h-64 flex items-center justify-center">
             <video
               ref={videoRef}
@@ -135,8 +135,8 @@ export default function CameraCapture({ onPhotoCaptured, currentPreview }) {
               className="w-full h-full object-cover"
             />
             {/* Viewfinder Target Framing Overlay */}
-            <div className="absolute inset-4 border-2 border-dashed border-white/50 rounded pointer-events-none flex items-center justify-center">
-              <div className="bg-black/60 text-white text-[11px] px-2.5 py-1 rounded font-medium backdrop-blur-sm">
+            <div className="absolute inset-4 border-2 border-dashed border-white/60 rounded pointer-events-none flex items-center justify-center">
+              <div className="bg-pharma-deep/80 text-white text-[11px] px-3 py-1 rounded font-medium backdrop-blur-sm border border-slate-700">
                 Align medicine box within frame
               </div>
             </div>
@@ -153,7 +153,7 @@ export default function CameraCapture({ onPhotoCaptured, currentPreview }) {
             <button
               type="button"
               onClick={captureFrame}
-              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold transition-colors flex items-center space-x-1 shadow-md"
+              className="px-5 py-2 bg-seal-emerald hover:bg-emerald-800 text-white rounded text-xs font-bold transition-colors flex items-center space-x-1 shadow-md"
             >
               <Camera className="w-4 h-4 mr-1.5" /> Capture photo
             </button>
@@ -161,23 +161,23 @@ export default function CameraCapture({ onPhotoCaptured, currentPreview }) {
         </div>
       ) : (
         /* Initial Action State: Launch Stream OR File Fallback */
-        <div className="bg-slate-50 border-2 border-dashed border-slate-300 rounded p-6 text-center space-y-4">
+        <div className="bg-slate-50 border-2 border-dashed border-slate-300 rounded p-6 text-center space-y-4 doc-panel">
           <div className="max-w-md mx-auto space-y-1">
-            <div className="w-10 h-10 rounded bg-clinical-50 border border-clinical-200 text-clinical-800 flex items-center justify-center mx-auto mb-2">
+            <div className="w-10 h-10 rounded bg-white border border-slate-200 text-pharma-deep flex items-center justify-center mx-auto mb-2">
               <Camera className="w-5 h-5" />
             </div>
-            <p className="text-xs font-semibold text-clinical-900">
-              Capture or attach a physical photo of the medicine packaging
+            <p className="text-xs font-semibold text-pharma-deep">
+              Take or attach a packaging photo
             </p>
             <p className="text-[11px] text-slate-500">
-              Use your device camera or upload an image file to compare against the manufacturer baseline.
+              Use your device camera or select a photo file to inspect against the verified baseline.
             </p>
           </div>
 
           {errorMsg && (
             <div className="p-2.5 bg-amber-50 border border-amber-200 text-amber-900 text-xs rounded text-left flex items-start space-x-2">
               <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <span>Camera access unavailable: {errorMsg}. You can upload an image file below instead.</span>
+              <span>Camera access unavailable: {errorMsg} Select a photo file from your device camera app instead.</span>
             </div>
           )}
 
@@ -185,12 +185,12 @@ export default function CameraCapture({ onPhotoCaptured, currentPreview }) {
             <button
               type="button"
               onClick={startCamera}
-              className="w-full sm:w-auto px-4 py-2 bg-clinical-800 hover:bg-clinical-900 text-white text-xs font-bold rounded transition-colors flex items-center justify-center"
+              className="w-full sm:w-auto px-4 py-2.5 bg-pharma-deep hover:bg-slate-900 text-white text-xs font-bold rounded transition-colors flex items-center justify-center"
             >
-              <Camera className="w-3.5 h-3.5 mr-1.5" /> Open camera stream
+              <Camera className="w-3.5 h-3.5 mr-1.5" /> Open camera
             </button>
-            <label className="w-full sm:w-auto px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded border border-slate-300 transition-colors cursor-pointer text-center flex items-center justify-center">
-              <Upload className="w-3.5 h-3.5 mr-1.5 text-slate-500" /> Select file from device
+            <label className="w-full sm:w-auto px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded border border-slate-300 transition-colors cursor-pointer text-center flex items-center justify-center">
+              <Upload className="w-3.5 h-3.5 mr-1.5 text-slate-500" /> Select photo file
               <input
                 type="file"
                 accept="image/*"

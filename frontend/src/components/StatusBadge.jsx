@@ -1,12 +1,12 @@
 import React from 'react';
 
 const STATE_CONFIG = {
-  0: { label: 'Manufactured', bg: 'bg-clinical-50', text: 'text-clinical-900', border: 'border-clinical-200' },
-  1: { label: 'In transit', bg: 'bg-amber-50', text: 'text-amber-900', border: 'border-amber-200' },
-  2: { label: 'At distributor', bg: 'bg-blue-50', text: 'text-blue-900', border: 'border-blue-200' },
+  0: { label: 'Manufactured', bg: 'bg-emerald-50', text: 'text-emerald-900', border: 'border-emerald-300' },
+  1: { label: 'In transit', bg: 'bg-amber-50', text: 'text-amber-900', border: 'border-amber-300' },
+  2: { label: 'At distributor', bg: 'bg-sky-50', text: 'text-sky-900', border: 'border-sky-300' },
   3: { label: 'At pharmacy', bg: 'bg-slate-100', text: 'text-slate-900', border: 'border-slate-300' },
-  4: { label: 'Dispensed', bg: 'bg-genuine-50', text: 'text-genuine-700', border: 'border-genuine-200' },
-  5: { label: 'Recalled', bg: 'bg-red-100', text: 'text-red-900', border: 'border-red-300' },
+  4: { label: 'Dispensed', bg: 'bg-teal-50', text: 'text-teal-900', border: 'border-teal-300' },
+  5: { label: 'Recalled', bg: 'bg-rose-100', text: 'text-rose-950', border: 'border-rose-400 font-bold' },
 };
 
 export default function StatusBadge({ state, stateName }) {
@@ -19,7 +19,7 @@ export default function StatusBadge({ state, stateName }) {
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border ${config.bg} ${config.text} ${config.border}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-none text-xs font-semibold border ${config.bg} ${config.text} ${config.border}`}
     >
       <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5" />
       {config.label}
