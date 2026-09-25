@@ -8,8 +8,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        'document-vellum': '#F3F1EC',
+        'pharma-navy': '#0D192B',
         'pharma-deep': '#0D192B',
+        'pharma-cream': '#F3F1EC',
+        'document-vellum': '#F3F1EC',
         'seal-emerald': '#134E35',
         'quarantine-crimson': '#881337',
         'manifest-slate': '#3A4B5C',
