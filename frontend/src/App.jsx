@@ -8,13 +8,18 @@ import DistributorView from './views/DistributorView';
 import PharmacyView from './views/PharmacyView';
 import RegulatorView from './views/RegulatorView';
 import PatientView from './views/PatientView';
+import GuidedTour from './components/GuidedTour';
 
 export default function App() {
   const [currentRole, setCurrentRole] = useState('home');
+  const [showTour, setShowTour] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   return (
     <WalletProvider>
-      <div className="min-h-screen flex flex-col bg-canvas text-clinical-800 font-sans antialiased">
+      <div className={`min-h-screen flex flex-col font-sans antialiased transition-colors duration-200 ${isDarkMode ? 'dark bg-[#090F1B] text-slate-100' : 'bg-canvas text-pharma-navy'}`}>
         {/* Toast Notifications */}
         <Toaster
           position="top-right"
@@ -25,32 +30,52 @@ export default function App() {
               fontSize: '13px',
               borderRadius: '4px',
               padding: '10px 14px',
-              border: '1px solid #cbd5e1',
-              boxShadow: '0 4px 12px rgba(15, 30, 54, 0.08)',
+              border: isDarkMode ? '1px solid #334155' : '1px solid #cbd5e1',
+              background: isDarkMode ? '#0F172A' : '#ffffff',
+              color: isDarkMode ? '#f8fafc' : '#0d192b',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
             },
             success: {
               style: {
-                background: '#f0fdf4',
-                color: '#05603a',
-                border: '1px solid #bbf7d0',
+                background: isDarkMode ? '#064e3b' : '#f0fdf4',
+                color: isDarkMode ? '#ecfdf5' : '#05603a',
+                border: '1px solid #059669',
               },
             },
             error: {
               style: {
-                background: '#fef2f2',
-                color: '#991b1b',
-                border: '1px solid #fecaca',
+                background: isDarkMode ? '#881337' : '#fef2f2',
+                color: isDarkMode ? '#fff1f2' : '#991b1b',
+                border: '1px solid #f43f5e',
               },
             },
           }}
         />
 
         {/* Top Navigation Header */}
-        <Header currentRole={currentRole} onRoleChange={setCurrentRole} />
+        <Header
+          currentRole={currentRole}
+          onRoleChange={setCurrentRole}
+          onStartTour={() => setShowTour(true)}
+          isDarkMode={isDarkMode}
+          onToggleDarkMode={toggleDarkMode}
+        />
+
+        {/* Guided Demo Walkthrough Modal */}
+        <GuidedTour
+          isOpen={showTour}
+          onClose={() => setShowTour(false)}
+          onRoleChange={setCurrentRole}
+        />
 
         {/* Main Role View Container */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
-          {currentRole === 'home' && <HomeView onRoleChange={setCurrentRole} />}
+          {currentRole === 'home' && (
+            <HomeView
+              onRoleChange={setCurrentRole}
+              onStartTour={() => setShowTour(true)}
+            />
+          )}
           {currentRole === 'manufacturer' && <ManufacturerView />}
           {currentRole === 'distributor' && <DistributorView />}
           {currentRole === 'pharmacy' && <PharmacyView />}
@@ -59,13 +84,15 @@ export default function App() {
         </main>
 
         {/* Persistent Clinical Footer */}
-        <footer className="bg-white border-t border-slate-300 py-4 text-xs text-slate-500 mt-auto">
+        <footer className={`border-t py-4 text-xs mt-auto transition-colors ${isDarkMode ? 'bg-[#0B132B] border-slate-800 text-slate-400' : 'bg-white border-slate-300 text-slate-500'}`}>
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <div className="flex items-center space-x-2 text-slate-700">
-              <span className="font-bold text-clinical-900 font-display">MedChain Platform</span>
+            <div className="flex items-center space-x-2">
+              <span className={`font-bold font-display ${isDarkMode ? 'text-white' : 'text-pharma-navy'}`}>
+                MedChain Platform
+              </span>
               <span>— Pharmaceutical Supply Chain Verification Network</span>
             </div>
-            <span className="text-slate-500 text-xs">
+            <span className={isDarkMode ? 'text-slate-400 text-xs' : 'text-slate-500 text-xs'}>
               Official Regulatory Audit & Authenticity System
             </span>
           </div>

@@ -1,23 +1,25 @@
 import React from 'react';
-import { Factory, Truck, Store, ShieldCheck, ShieldAlert, CheckCircle2, ArrowRight, Activity, Award } from 'lucide-react';
+import { Factory, Truck, Store, ShieldCheck, ShieldAlert, CheckCircle2, ArrowRight } from 'lucide-react';
+import AnimatedMetrics from '../components/AnimatedMetrics';
+import ActivityFeed from '../components/ActivityFeed';
 
-export default function HomeView({ onRoleChange }) {
+export default function HomeView({ onRoleChange, onStartTour }) {
   return (
     <div className="space-y-8 py-2">
       {/* 1. Distinct Security & Forensic Hero Banner */}
-      <div className="bg-white border border-slate-300 rounded p-6 sm:p-10 space-y-6 doc-panel shadow-sm">
+      <div className="bg-white border border-slate-300 rounded p-6 sm:p-10 space-y-6 doc-panel shadow-xs" id="tour-metrics">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-200 pb-6">
           <div className="space-y-3 max-w-2xl">
             <div className="flex items-center space-x-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-seal-emerald inline-block"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-seal-emerald inline-block" />
               <span className="text-xs font-semibold text-slate-600 font-display">
                 Pharmaceutical Traceability & Authenticity Network
               </span>
             </div>
-            <h1 className="font-display font-bold text-2xl sm:text-3xl text-pharma-deep leading-tight">
+            <h1 className="font-display font-bold text-2xl sm:text-3xl text-pharma-navy leading-tight">
               Verifiable medicine authenticity from factory line to patient dispensing.
             </h1>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
               Verify your medicine's authenticity, inspect physical packaging standards, and trace complete chain-of-custody logs across verified supply chain handoffs.
             </p>
           </div>
@@ -40,53 +42,72 @@ export default function HomeView({ onRoleChange }) {
           </div>
         </div>
 
-        {/* Rapid Patient Verification Callout */}
-        <div className="bg-pharma-deep text-white p-5 rounded flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+        {/* Rapid Patient Verification & Guided Tour Callout */}
+        <div className="bg-pharma-navy text-white p-5 rounded flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
           <div className="flex items-center space-x-3.5">
             <div className="p-2.5 bg-slate-900 border border-slate-700 rounded shrink-0">
               <ShieldCheck className="w-6 h-6 text-emerald-400" />
             </div>
             <div>
               <h3 className="font-display font-bold text-sm sm:text-base text-white">
-                Have a medicine package to verify?
+                Have a medicine package to verify or presenting a demo?
               </h3>
               <p className="text-xs text-slate-300 mt-0.5">
-                Scan the code on your package and take a photo to check if your medicine is genuine.
+                Scan your medicine QR code or take a guided walkthrough of all 6 core supply chain modules.
               </p>
             </div>
           </div>
-          <button
-            onClick={() => onRoleChange('patient')}
-            className="w-full sm:w-auto px-5 py-2.5 bg-seal-emerald hover:bg-emerald-800 text-white rounded text-xs font-bold transition-colors shrink-0 flex items-center justify-center space-x-1.5"
-          >
-            <span>Verify product authenticity</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+
+          <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto shrink-0">
+            {onStartTour && (
+              <button
+                type="button"
+                onClick={onStartTour}
+                className="w-full sm:w-auto px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded text-xs font-bold transition-colors flex items-center justify-center space-x-1.5"
+              >
+                <span>Take interactive tour</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => onRoleChange('patient')}
+              className="w-full sm:w-auto px-5 py-2.5 bg-seal-emerald hover:bg-emerald-800 text-white rounded text-xs font-bold transition-colors flex items-center justify-center space-x-1.5 shadow-xs"
+            >
+              <span>Verify product authenticity</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* 2. Supply Chain Role Destinations — Differentiated Layout Treatments */}
+      {/* 2. Animated Landing Page Metrics Section (Phase B) */}
+      <AnimatedMetrics />
+
+      {/* 3. Live System Activity Stream (Phase C) */}
+      <ActivityFeed limit={12} autoPoll={true} />
+
+      {/* 4. Supply Chain Role Destinations */}
       <div className="space-y-4">
         <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-          <h2 className="font-display font-bold text-base text-pharma-deep">
+          <h2 className="font-display font-bold text-base text-pharma-navy">
             Supply Chain Portal Destinations
           </h2>
           <span className="text-xs text-slate-500">Select terminal by role</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Destination 1: Patient / Consumer Verification (Featured Primary Card) */}
-          <div className="bg-white border-2 border-pharma-deep p-6 rounded space-y-4 flex flex-col justify-between shadow-sm">
+          {/* Destination 1: Patient / Consumer Verification */}
+          <div className="bg-white border-2 border-pharma-navy p-6 rounded space-y-4 flex flex-col justify-between shadow-xs">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-pharma-deep font-display">
+                <span className="text-xs font-semibold text-pharma-navy font-display">
                   Public Inspection Terminal
                 </span>
                 <span className="p-2 bg-emerald-50 text-seal-emerald border border-emerald-200 rounded">
                   <ShieldCheck className="w-5 h-5" />
                 </span>
               </div>
-              <h3 className="font-display font-bold text-lg text-pharma-deep">
+              <h3 className="font-display font-bold text-lg text-pharma-navy">
                 Patient & Consumer Product Verification
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -94,8 +115,9 @@ export default function HomeView({ onRoleChange }) {
               </p>
             </div>
             <button
+              type="button"
               onClick={() => onRoleChange('patient')}
-              className="w-full py-2.5 bg-pharma-deep hover:bg-slate-900 text-white text-xs font-bold rounded transition-colors text-center mt-2 flex items-center justify-center space-x-1"
+              className="w-full py-2.5 bg-pharma-navy hover:bg-slate-900 text-white text-xs font-bold rounded transition-colors text-center mt-2 flex items-center justify-center space-x-1"
             >
               <span>Open patient verification terminal</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -113,7 +135,7 @@ export default function HomeView({ onRoleChange }) {
                   <Factory className="w-5 h-5" />
                 </span>
               </div>
-              <h3 className="font-display font-bold text-base text-pharma-deep">
+              <h3 className="font-display font-bold text-base text-pharma-navy">
                 Pharmaceutical Manufacturer Terminal
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -121,8 +143,9 @@ export default function HomeView({ onRoleChange }) {
               </p>
             </div>
             <button
+              type="button"
               onClick={() => onRoleChange('manufacturer')}
-              className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-pharma-deep text-xs font-bold rounded border border-slate-300 transition-colors text-center mt-2"
+              className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-pharma-navy text-xs font-bold rounded border border-slate-300 transition-colors text-center mt-2"
             >
               Access manufacturer console
             </button>
@@ -139,7 +162,7 @@ export default function HomeView({ onRoleChange }) {
                   <Truck className="w-5 h-5" />
                 </span>
               </div>
-              <h3 className="font-display font-bold text-base text-pharma-deep">
+              <h3 className="font-display font-bold text-base text-pharma-navy">
                 Logistics & Wholesale Distributor Terminal
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -147,8 +170,9 @@ export default function HomeView({ onRoleChange }) {
               </p>
             </div>
             <button
+              type="button"
               onClick={() => onRoleChange('distributor')}
-              className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-pharma-deep text-xs font-bold rounded border border-slate-300 transition-colors text-center mt-2"
+              className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-pharma-navy text-xs font-bold rounded border border-slate-300 transition-colors text-center mt-2"
             >
               Access distributor console
             </button>
@@ -165,7 +189,7 @@ export default function HomeView({ onRoleChange }) {
                   <Store className="w-5 h-5" />
                 </span>
               </div>
-              <h3 className="font-display font-bold text-base text-pharma-deep">
+              <h3 className="font-display font-bold text-base text-pharma-navy">
                 Accredited Pharmacy Terminal
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
@@ -173,20 +197,21 @@ export default function HomeView({ onRoleChange }) {
               </p>
             </div>
             <button
+              type="button"
               onClick={() => onRoleChange('pharmacy')}
-              className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-pharma-deep text-xs font-bold rounded border border-slate-300 transition-colors text-center mt-2"
+              className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-pharma-navy text-xs font-bold rounded border border-slate-300 transition-colors text-center mt-2"
             >
               Access pharmacy console
             </button>
           </div>
 
-          {/* Destination 5: Autonomous Regulator Audit Log (Full Width Feature Bar) */}
+          {/* Destination 5: Autonomous Regulator Audit Log */}
           <div className="md:col-span-2 bg-slate-50 border border-slate-300 p-6 rounded space-y-4 doc-panel">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center space-x-2">
                   <ShieldAlert className="w-5 h-5 text-quarantine-crimson" />
-                  <h3 className="font-display font-bold text-base text-pharma-deep">
+                  <h3 className="font-display font-bold text-base text-pharma-navy">
                     Autonomous AI Regulator Audit Trail
                   </h3>
                 </div>
@@ -195,8 +220,9 @@ export default function HomeView({ onRoleChange }) {
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => onRoleChange('regulator')}
-                className="py-2.5 px-5 bg-white hover:bg-slate-100 text-pharma-deep text-xs font-bold rounded border border-slate-300 transition-colors shrink-0"
+                className="py-2.5 px-5 bg-white hover:bg-slate-100 text-pharma-navy text-xs font-bold rounded border border-slate-300 transition-colors shrink-0"
               >
                 View regulator audit log
               </button>

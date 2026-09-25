@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Factory, Truck, Store, ShieldCheck, ShieldAlert, Info, X, Wallet, ExternalLink, AlertTriangle } from 'lucide-react';
+import { Home, Factory, Truck, Store, ShieldCheck, ShieldAlert, Info, X, Wallet, ExternalLink, AlertTriangle, PlayCircle, Sun, Moon } from 'lucide-react';
 import LogoMark from './LogoMark';
 import { useWallet } from '../context/WalletContext';
 
@@ -12,7 +12,7 @@ const NAVIGATION_ITEMS = [
   { id: 'patient', label: 'Patient verification', icon: ShieldCheck },
 ];
 
-export default function Header({ currentRole, onRoleChange }) {
+export default function Header({ currentRole, onRoleChange, onStartTour, isDarkMode, onToggleDarkMode }) {
   const [showTechModal, setShowTechModal] = useState(false);
   const [showWalletDropdown, setShowWalletDropdown] = useState(false);
 
@@ -191,14 +191,37 @@ export default function Header({ currentRole, onRoleChange }) {
                 </button>
               )}
 
-              {/* Technical Specifications Trigger */}
+              {onStartTour && (
+                <button
+                  onClick={onStartTour}
+                  className="flex items-center space-x-1 px-2.5 py-1.5 rounded text-xs font-semibold bg-seal-emerald hover:bg-emerald-800 text-white transition-colors"
+                  title="Launch guided demo tour"
+                >
+                  <PlayCircle className="w-3.5 h-3.5" />
+                  <span className="hidden md:inline">Take tour</span>
+                </button>
+              )}
+
+              {/* Dark Mode Theme Toggle */}
+              {onToggleDarkMode && (
+                <button
+                  onClick={onToggleDarkMode}
+                  className="p-1.5 rounded text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                  title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                  aria-label="Toggle Dark Mode"
+                >
+                  {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-300" />}
+                </button>
+              )}
+
+              {/* Technical Specifications Overlay Toggle */}
               <button
                 onClick={() => setShowTechModal(true)}
-                className="hidden lg:flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white px-2.5 py-1.5 rounded border border-slate-700/60 hover:bg-slate-900 transition-colors"
+                className="flex items-center space-x-1 px-2.5 py-1.5 rounded text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
                 title="View Technical Specifications"
               >
                 <Info className="w-3.5 h-3.5 text-slate-400" />
-                <span>Technical details</span>
+                <span className="hidden md:inline">Technical details</span>
               </button>
             </div>
           </div>

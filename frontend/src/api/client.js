@@ -159,7 +159,26 @@ export const getRegulatorAuditLog = async (params = {}) => {
   return response.data;
 };
 
+/**
+ * Fetches real-time system metrics and historical trends for landing page.
+ */
+export const getSystemMetrics = async () => {
+  const response = await api.get('/regulator/metrics');
+  return response.data;
+};
+
+/**
+ * Fetches unified timestamp-sorted system activity feed.
+ * @param {number} limit 
+ */
+export const getActivityFeed = async (limit = 15) => {
+  const response = await api.get('/regulator/activity-feed', { params: { limit } });
+  return response.data;
+};
+
 export default api;
+
+
 
 
 
