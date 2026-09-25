@@ -103,7 +103,7 @@ export default function AnimatedMetrics() {
     <div className="space-y-6">
       <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
         <div className="flex items-center space-x-2">
-          <Activity className="w-4 h-4 text-pharma-navy dark:text-emerald-400" />
+          <Activity className="w-4 h-4 text-seal-emerald dark:text-emerald-400" />
           <h2 className="font-display font-bold text-base text-pharma-navy dark:text-white">
             Live system performance & metrics
           </h2>
@@ -113,54 +113,54 @@ export default function AnimatedMetrics() {
         </span>
       </div>
 
-      {/* 1. Animated Metric Cards */}
+      {/* 1. Animated Metric Cards with Rich Palette in Day and Dark Mode */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Metric 1 */}
-        <div className="doc-panel bg-white/80 p-4 border border-slate-300 shadow-xs flex items-center space-x-3.5">
-          <div className="p-3 bg-pharma-cream text-pharma-navy border border-slate-300 dark:bg-slate-800 dark:text-white dark:border-slate-700 shrink-0">
+        {/* Metric 1: Total Batches */}
+        <div className="doc-panel bg-white/90 dark:bg-slate-900 p-4 border border-slate-300 dark:border-slate-800 shadow-xs flex items-center space-x-3.5">
+          <div className="p-3 bg-emerald-50 text-seal-emerald border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800 shrink-0 rounded">
             <Layers className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block">Total batches created</span>
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">Total batches created</span>
             <span className="text-xl font-extrabold text-pharma-navy dark:text-white font-mono">
               <CountUpNumber end={metrics.totalBatches} />
             </span>
           </div>
         </div>
 
-        {/* Metric 2 */}
-        <div className="doc-panel bg-white/80 p-4 border border-slate-300 shadow-xs flex items-center space-x-3.5">
-          <div className="p-3 bg-sky-50 text-sky-900 border border-sky-300 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800 shrink-0">
+        {/* Metric 2: Custody Transfers */}
+        <div className="doc-panel bg-white/90 dark:bg-slate-900 p-4 border border-slate-300 dark:border-slate-800 shadow-xs flex items-center space-x-3.5">
+          <div className="p-3 bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800 shrink-0 rounded">
             <ArrowRightLeft className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block">Custody transfers logged</span>
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">Custody transfers logged</span>
             <span className="text-xl font-extrabold text-pharma-navy dark:text-white font-mono">
               <CountUpNumber end={metrics.totalTransfers} />
             </span>
           </div>
         </div>
 
-        {/* Metric 3 */}
-        <div className="doc-panel bg-white/80 p-4 border border-slate-300 shadow-xs flex items-center space-x-3.5">
-          <div className="p-3 bg-emerald-50 text-seal-emerald border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 shrink-0">
+        {/* Metric 3: Verifications */}
+        <div className="doc-panel bg-white/90 dark:bg-slate-900 p-4 border border-slate-300 dark:border-slate-800 shadow-xs flex items-center space-x-3.5">
+          <div className="p-3 bg-teal-50 text-teal-800 border border-teal-200 dark:bg-teal-950/60 dark:text-teal-300 dark:border-teal-800 shrink-0 rounded">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block">Verifications run</span>
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">Verifications run</span>
             <span className="text-xl font-extrabold text-pharma-navy dark:text-white font-mono">
               <CountUpNumber end={metrics.totalVerifications} />
             </span>
           </div>
         </div>
 
-        {/* Metric 4 */}
-        <div className="doc-panel bg-white/80 p-4 border border-slate-300 shadow-xs flex items-center space-x-3.5">
-          <div className="p-3 bg-rose-50 text-quarantine-crimson border border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800 shrink-0">
+        {/* Metric 4: Alerts & Recalls */}
+        <div className="doc-panel bg-white/90 dark:bg-slate-900 p-4 border border-slate-300 dark:border-slate-800 shadow-xs flex items-center space-x-3.5">
+          <div className="p-3 bg-rose-50 text-quarantine-crimson border border-rose-200 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800 shrink-0 rounded">
             <ShieldAlert className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block">Alerts & recalls</span>
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">Alerts & recalls</span>
             <span className="text-xl font-extrabold text-quarantine-crimson dark:text-rose-400 font-mono">
               <CountUpNumber end={metrics.totalAlerts} />
             </span>
@@ -171,7 +171,7 @@ export default function AnimatedMetrics() {
       {/* 2. Recharts Trend & Verdict Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Bar Chart: Daily Activity */}
-        <div className="lg:col-span-2 doc-panel bg-white/80 p-4 border border-slate-300 space-y-3">
+        <div className="lg:col-span-2 doc-panel bg-white/90 dark:bg-slate-900 p-4 border border-slate-300 dark:border-slate-800 space-y-3">
           <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
             <h4 className="font-display font-bold text-xs text-pharma-navy dark:text-white">
               Weekly verifications & custody activity
@@ -184,19 +184,19 @@ export default function AnimatedMetrics() {
               <BarChart data={metrics.dailyTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <XAxis
                   dataKey="day"
-                  tick={{ fontSize: 11, fill: '#94A3B8', fontFamily: 'IBM Plex Mono' }}
-                  axisLine={{ stroke: '#475569' }}
+                  tick={{ fontSize: 11, fill: '#64748B', fontFamily: 'IBM Plex Mono' }}
+                  axisLine={{ stroke: '#CBD5E1' }}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fontSize: 11, fill: '#94A3B8', fontFamily: 'IBM Plex Mono' }}
-                  axisLine={{ stroke: '#475569' }}
+                  tick={{ fontSize: 11, fill: '#64748B', fontFamily: 'IBM Plex Mono' }}
+                  axisLine={{ stroke: '#CBD5E1' }}
                   tickLine={false}
                 />
                 <Tooltip content={<CustomChartTooltip />} />
-                {/* High contrast vibrant column fills */}
+                {/* Vibrant Fills for Day and Dark Mode */}
                 <Bar dataKey="verifications" name="Verifications" fill="#10B981" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="transfers" name="Custody transfers" fill="#38BDF8" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="transfers" name="Custody transfers" fill="#0284C7" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -207,14 +207,14 @@ export default function AnimatedMetrics() {
               <span className="text-slate-600 dark:text-slate-300 text-[11px]">Verifications</span>
             </div>
             <div className="flex items-center space-x-1.5 font-mono">
-              <span className="w-2.5 h-2.5 bg-sky-400 inline-block" />
+              <span className="w-2.5 h-2.5 bg-sky-600 inline-block" />
               <span className="text-slate-600 dark:text-slate-300 text-[11px]">Custody transfers</span>
             </div>
           </div>
         </div>
 
         {/* Donut / Pie Chart: Tiered Verdict Breakdown */}
-        <div className="doc-panel bg-white/80 p-4 border border-slate-300 space-y-3 flex flex-col justify-between">
+        <div className="doc-panel bg-white/90 dark:bg-slate-900 p-4 border border-slate-300 dark:border-slate-800 space-y-3 flex flex-col justify-between">
           <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
             <h4 className="font-display font-bold text-xs text-pharma-navy dark:text-white">
               AI verdict distribution
