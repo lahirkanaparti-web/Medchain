@@ -118,27 +118,73 @@
   border: none !important;
 }
 
-/* Dark Mode Security Token Overrides */
+/* Comprehensive Dark Mode High-Contrast Overrides */
 .dark body {
   background-color: #090F1B !important;
-  color: #F1F5F9 !important;
+  color: #F8FAFC !important;
 }
 
 .dark .doc-panel {
   background-color: #0F172A !important;
-  border-color: #1E293B !important;
-  color: #F1F5F9 !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .dark .doc-header {
-  border-bottom-color: #1E293B !important;
-  background-color: #0B132B !important;
+  border-bottom-color: #334155 !important;
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
 }
 
+/* Force text visibility in Dark Mode */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  color: #F8FAFC !important;
+}
+
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-pharma-navy,
+.dark .text-pharma-deep,
+.dark .text-clinical-900,
+.dark .text-clinical-800 {
+  color: #F8FAFC !important;
+}
+
+.dark .text-slate-700,
+.dark .text-slate-600 {
+  color: #CBD5E1 !important;
+}
+
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: #94A3B8 !important;
+}
+
+.dark .bg-white {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+}
+
+.dark .bg-slate-50 {
+  background-color: #1E293B !important;
+  color: #F1F5F9 !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: #1E293B !important;
+  color: #F1F5F9 !important;
+}
+
+.dark .border-slate-200,
+.dark .border-slate-300 {
+  border-color: #334155 !important;
+}
+
+/* Leaflet Dark Mode Tiles */
 .dark .leaflet-popup-content-wrapper {
   background-color: #0F172A !important;
-  color: #F1F5F9 !important;
+  color: #F8FAFC !important;
   border: 1px solid #334155 !important;
 }
 
@@ -149,4 +195,14 @@
 
 .dark .leaflet-tile {
   filter: brightness(0.65) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
+}
+
+/* Recharts Dark Mode Axis & Text Colors */
+.dark .recharts-text {
+  fill: #94A3B8 !important;
+}
+
+.dark .recharts-cartesian-axis-line,
+.dark .recharts-cartesian-grid-line {
+  stroke: #334155 !important;
 }

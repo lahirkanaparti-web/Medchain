@@ -73,7 +73,8 @@ export default function Header({ currentRole, onRoleChange, onStartTour, isDarkM
 
   return (
     <>
-      <header className="bg-pharma-navy border-b border-slate-800 text-white sticky top-0 z-40 shadow-sm">
+      <header className="bg-pharma-navy border-b border-slate-700/80 text-white sticky top-0 z-40 shadow-lg shadow-slate-900/20">
+        <div className="h-0.5 bg-gradient-to-r from-seal-emerald via-emerald-400 to-seal-emerald w-full" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 gap-4">
             
